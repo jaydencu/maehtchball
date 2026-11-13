@@ -85,6 +85,18 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
 .score{margin:2px 0 4px;font-family:inherit;font-weight:900;font-size:50px;line-height:1}
 .stars{margin:0 0 6px;font-size:30px;line-height:1;color:#E0A100;letter-spacing:4px}
 .linkbox{margin:0 0 4px;padding:9px 10px;background:#fff;border:2px dashed #33261F;border-radius:10px;font-size:14px;line-height:1.3;word-break:break-all;-webkit-user-select:text;user-select:text}
+.steps{list-style:none;margin:0 0 8px;padding:0;counter-reset:st}
+.steps li{position:relative;counter-increment:st;margin:0 0 6px;padding:8px 10px 8px 46px;border:3px solid rgba(51,38,31,.25);border-radius:14px;opacity:.55}
+.steps li:before{content:counter(st);position:absolute;left:9px;top:8px;width:26px;height:26px;line-height:26px;border-radius:50%;background:#33261F;color:#FFF7E6;text-align:center;font-size:15px}
+.steps li b{display:block;font-size:16px;line-height:1.2}
+.steps li span{display:block;font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-weight:600;font-size:13px;line-height:1.35}
+.steps li.now{opacity:1;border-color:#33261F;background:#FCE9A6;box-shadow:0 3px 0 #33261F}
+.steps li.done{opacity:.8}.steps li.done:before{content:"\2713";background:#2E9E4F}
+.steps .sign{margin:8px 0 2px}.steps .linkbox{margin-top:6px;font-size:12px}
+.codeline{margin:4px 0 0;font-size:14px}.codeline b{font-size:20px;letter-spacing:2px}
+.live{margin:6px 0 0;padding:8px 10px;border-radius:12px;background:#33261F;color:#FFF7E6;font-size:14px;line-height:1.35}
+.live:before{content:"";display:inline-block;width:10px;height:10px;margin-right:8px;border-radius:50%;background:#F7C948;-webkit-animation:pu 1s infinite;animation:pu 1s infinite}
+@-webkit-keyframes pu{50%{opacity:.25}}@keyframes pu{50%{opacity:.25}}
 .join{margin:14px 0 0;padding-top:12px;border-top:2px dashed rgba(51,38,31,.35)}
 .join label{display:block;margin:0 0 6px;font-size:15px}
 #i-code{width:128px;padding:7px 8px;border:3px solid #33261F;border-radius:12px;background:#fff;font-size:18px;text-align:center;text-transform:uppercase;-webkit-user-select:text;user-select:text;vertical-align:middle}
@@ -150,21 +162,34 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
       <p class="lead">Eröffne ein Spiel und schick den Link per WhatsApp. Dein Mitspieler tippt drauf und ist dabei, egal ob iPhone oder Android. Kostet nichts, braucht keine Anmeldung.</p>
       <div class="solo"><button class="sign" id="b-host">Spiel eröffnen<small>Du bekommst sofort einen Link zum Verschicken</small></button></div>
       <div class="join">
-        <label for="i-code">Jemand hat dir einen Code genannt?</label>
+        <label for="i-code">Du hast einen Code bekommen? Hier eintippen:</label>
         <input id="i-code" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7QX2">
         <button class="mini" id="b-join">Beitreten</button>
       </div>
     </div>
     <div id="on-wait" hidden>
-      <p class="lead" id="on-status"></p>
-      <div id="on-share" hidden>
-        <p class="linkbox" id="on-link"></p>
-        <div class="solo"><a class="sign wa" id="b-wa" target="_blank" rel="noopener" href="#">Per WhatsApp einladen<small>Öffnet WhatsApp mit dem fertigen Link</small></a></div>
-        <p class="row"><button class="mini" id="b-copy">Link kopieren</button><button class="mini" id="b-share" hidden>Anders teilen</button></p>
-        <p class="lead">Komm danach hierher zurück. Sobald dein Mitspieler auf den Link tippt, geht es los. Code zum Ansagen: <b id="on-code"></b></p>
-      </div>
+      <ol class="steps">
+        <li id="st1"><b>Einladung schicken</b><span id="on-status"></span>
+          <div id="on-share" hidden>
+            <div class="solo"><a class="sign wa" id="b-wa" target="_blank" rel="noopener" href="#">Per WhatsApp einladen<small>Hier tippen, Chat wählen, abschicken</small></a></div>
+            <p class="row"><button class="mini" id="b-copy">Link kopieren</button><button class="mini" id="b-share" hidden>Anders teilen</button></p>
+            <p class="linkbox" id="on-link"></p>
+            <p class="codeline">Code zum Ansagen: <b id="on-code"></b></p>
+          </div>
+        </li>
+        <li id="st2"><b>Hierher zurückkommen und warten</b><span>Lass diese Seite offen. Du musst nichts mehr drücken.</span></li>
+        <li id="st3"><b>Das Spiel startet von selbst</b><span>Sobald dein Mitspieler auf den Link tippt und „Mitspielen“ drückt.</span></li>
+      </ol>
+      <p class="live" id="on-live"></p>
     </div>
-    <div id="on-join" hidden><p class="lead" id="on-jstatus"></p></div>
+    <div id="on-join" hidden>
+      <ol class="steps">
+        <li class="done"><b>Einladung angenommen</b></li>
+        <li class="now"><b>Verbindung wird aufgebaut</b><span>Lass diese Seite offen. Du musst nichts mehr drücken.</span></li>
+        <li><b>Das Spiel startet von selbst</b></li>
+      </ol>
+      <p class="live" id="on-jstatus"></p>
+    </div>
     <div id="on-err" hidden><p class="lead" id="on-emsg"></p><p class="row"><button class="mini" id="b-retry">Nochmal versuchen</button></p></div>
     <div id="on-preview" hidden><p class="lead">Das Online-Duell läuft nur über den öffentlichen Spiel-Link. In dieser Vorschau innerhalb von Claude sind Verbindungen zwischen zwei Handys gesperrt. Die Alm-Tour gegen den Computer kannst du hier schon spielen.</p></div>
     <p class="row"><button class="mini" data-go="home">Zurück</button></p>
@@ -1912,7 +1937,7 @@ var PEER_OPT = { debug: 1, config: { iceServers: [
   { urls: ['turn:eu-0.turn.peerjs.com:3478', 'turn:us-0.turn.peerjs.com:3478'], username: 'peerjs', credential: 'peerjsp' }
 ], sdpSemantics: 'unified-plan' } };
 var CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-var cur = '', toastT = 0, hiddenAt = 0;
+var cur = '', toastT = 0, hiddenAt = 0, lobbyT = 0;
 
 function hide(el, h) { if (h) el.setAttribute('hidden', ''); else el.removeAttribute('hidden'); }
 function setText(id, s) { $(id).textContent = s; }
@@ -1997,6 +2022,7 @@ function message(title, body) { setText('m-title', title); setText('m-text', bod
 function uiTick() {
   if (S && S.mode !== 'demo' && S.over && !S.shown && S.overT > 1.7 && ((!S.bubble && !S.queue.length) || S.overT > 12) && cur === '') showResult();
   if (S && S.net && NET.up && NET.downT > 75) lost();
+  lobbyTick();
 }
 
 /* ---------- online: two phones talk directly (WebRTC), PeerJS only introduces them ---------- */
@@ -2024,17 +2050,36 @@ function setOn(state, msg) {
   var l;
   hide($('on-start'), state !== 'start'); hide($('on-wait'), state !== 'opening' && state !== 'waiting');
   hide($('on-join'), state !== 'joining' && state !== 'seeking'); hide($('on-err'), state !== 'error'); hide($('on-preview'), state !== 'preview');
-  if (state === 'opening') { setText('on-status', 'Dein Spiel wird eröffnet …'); hide($('on-share'), true); }
+  if (state === 'opening') { setText('on-status', 'Dein Spiel wird eröffnet …'); hide($('on-share'), true); NET.sent = false; NET.found = 0; NET.t0 = now(); setStep(1); setText('on-live', 'Einen Moment …'); }
   if (state === 'waiting') {
-    l = gameLink(); setText('on-status', 'Dein Spiel ist offen. Schick jetzt den Link los:'); setText('on-link', l); setText('on-code', NET.code);
-    $('b-wa').href = 'https://wa.me/?text=' + encodeURIComponent('Määhtchball 🐑🏐 Volleyball auf der Alm, Schaf gegen Esel. Spiel gegen mich: ' + l);
+    l = gameLink(); setText('on-status', 'Dein Spiel ist offen. Tipp auf den grünen Knopf:'); setText('on-link', l); setText('on-code', NET.code);
+    $('b-wa').href = 'https://wa.me/?text=' + encodeURIComponent('Määhtchball 🐑🏐 Spiel gegen mich! Tipp auf den Link und dann auf „Mitspielen“: ' + l + '  (Falls ein Code gefragt wird: ' + NET.code + ')');
+    setStep(NET.sent ? 2 : 1);
     hide($('b-share'), !navigator.share); hide($('on-share'), false);
   }
   if (state === 'joining') setText('on-jstatus', 'Verbinde mit dem Spiel ' + NET.code + ' …');
-  if (state === 'seeking') setText('on-jstatus', 'Dein Mitspieler hat die Seite gerade nicht offen. Ich versuche es weiter …');
+  if (state === 'seeking') setText('on-jstatus', 'Dein Mitspieler hat die Spielseite gerade nicht offen. Sag ihm, er soll zur Seite zurückwechseln. Ich versuche es weiter …');
+  NET.ui = state;
   if (state === 'error') setText('on-emsg', msg);
   if (cur !== 'online' && cur !== '') show('online');
 }
+function setStep(n) {
+  var i;
+  for (i = 1; i <= 3; i++) $('st' + i).className = i < n ? 'done' : i === n ? 'now' : '';
+}
+function sentInvite() { if (NET.role === 'host' && !NET.up) { NET.sent = true; NET.t0 = now(); setStep(2); } }
+/* keeps the waiting room honest: what is happening right now, and for how long */
+function lobbyTick() {
+  var s, t;
+  if (now() - lobbyT < 500 || cur !== 'online' || NET.up) return;
+  lobbyT = now(); s = Math.floor((now() - (NET.t0 || now())) / 1000); t = Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60;
+  if (NET.role === 'host' && NET.ui === 'waiting') {
+    if (NET.found) { setStep(3); setText('on-live', now() - NET.found < 15000 ? 'Mitspieler gefunden! Verbindung wird aufgebaut …' : 'Die Direktverbindung kommt nicht zustande. Meist blockiert ein WLAN: Einer von euch schaltet auf mobile Daten um und tippt nochmal auf den Link.'); }
+    else setText('on-live', NET.sent ? 'Warte auf deinen Mitspieler … ' + t : 'Noch niemand eingeladen. Tipp oben auf den grünen Knopf.');
+  }
+  if (NET.role === 'guest' && NET.ui === 'joining' && s > 20) setText('on-jstatus', 'Das dauert ungewöhnlich lang (' + t + '). Wenn es nicht klappt: Einer von euch schaltet von WLAN auf mobile Daten um, dann nochmal auf den Link tippen.');
+}
+function awake() { try { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request('screen').then(function () {}, function () {}); } catch (e) {} }
 function onlineStart() { netClose(true); setOn(IN_PREVIEW ? 'preview' : 'start'); }
 function netFail(kind) {
   var m = {
@@ -2080,20 +2125,20 @@ function wire(c) {
 }
 function hostStart() {
   netClose(true);
-  NET.role = 'host'; NET.code = mkCode(); NET.last = ['host']; setOn('opening');
+  NET.role = 'host'; NET.code = mkCode(); NET.last = ['host']; awake(); setOn('opening');
   loadPeer(function (ok) {
     var p;
     if (NET.role !== 'host' || NET.peer) return;
     if (!ok) return netFail('lib');
     try { p = NET.peer = new window.Peer(pid(NET.code), PEER_OPT); } catch (e) { return netFail('webrtc'); }
     p.on('open', function () { if (NET.peer !== p) return; NET.opened = true; if (!NET.up && cur === 'online') setOn('waiting'); });
-    p.on('connection', function (c) { if (NET.peer === p) wire(c); });
+    p.on('connection', function (c) { if (NET.peer === p) { NET.found = now(); wire(c); } });
     peerCommon(p);
   });
 }
 function guestStart(code) {
   netClose(true);
-  NET.role = 'guest'; NET.code = code; NET.tries = 0; NET.last = ['guest', code]; setOn('joining');
+  NET.role = 'guest'; NET.code = code; NET.tries = 0; NET.last = ['guest', code]; NET.t0 = now(); awake(); setOn('joining');
   loadPeer(function (ok) {
     var p;
     if (NET.role !== 'guest' || NET.peer) return;
@@ -2229,18 +2274,19 @@ function init() {
   $('b-host').onclick = function () { audioOn(); landFull(); hostStart(); };
   $('b-join').onclick = function () { var c = ($('i-code').value || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); audioOn(); if (c.length !== 5) { toast('Der Code hat 5 Zeichen'); return; } landFull(); guestStart(c); };
   $('b-accept').onclick = function () { var c = hashCode(); audioOn(); landFull(); if (c) { show('online'); guestStart(c); } else go('online'); };
-  $('b-copy').onclick = function () { copyText(gameLink()); };
-  $('b-share').onclick = function () { try { navigator.share({ title: 'Määhtchball', text: 'Volleyball auf der Alm, Schaf gegen Esel. Spiel gegen mich!', url: gameLink() })['catch'](function () {}); } catch (e) {} };
+  $('b-copy').onclick = function () { copyText(gameLink()); sentInvite(); };
+  $('b-wa').onclick = function () { setTimeout(sentInvite, 400); };
+  $('b-share').onclick = function () { sentInvite(); try { navigator.share({ title: 'Määhtchball', text: 'Volleyball auf der Alm, Schaf gegen Esel. Spiel gegen mich!', url: gameLink() })['catch'](function () {}); } catch (e) {} };
   $('b-retry').onclick = function () { var l = NET.last; if (l && l[0] === 'guest') guestStart(l[1]); else hostStart(); };
   window.addEventListener('hashchange', function () { if (!IN_PREVIEW && hashCode() && (cur === 'home' || cur === 'help' || cur === 'tour')) show('invite'); });
   document.addEventListener('visibilitychange', function () {
     tin.l = tin.r = tin.j = false; keys.l = keys.r = keys.j = false;
     if (document.hidden) { hiddenAt = now(); audioSleep(true); try { if (SP) SP.cancel(); } catch (e) {} if (S && S.mode === 'solo' && cur === '') togglePause(); return; }
-    lastTs = now(); audioSleep(false);
+    lastTs = now(); audioSleep(false); if (NET.role || (S && S.mode !== 'demo')) awake();
     if (NET.peer && !NET.peer.destroyed) {
       /* back from WhatsApp: phones often cut the line to the matchmaking server while the page sleeps, so open a fresh one */
       if (NET.peer.disconnected) { try { NET.peer.reconnect(); } catch (e) {} }
-      else if (hiddenAt && now() - hiddenAt > 8000 && NET.opened) { try { NET.peer.disconnect(); } catch (e) {} }
+      else if (hiddenAt && now() - hiddenAt > 30000 && NET.opened && !NET.up) { try { NET.peer.disconnect(); } catch (e) {} }
     }
     if (NET.role === 'guest' && NET.up && !NET.conn && !NET.dial) { NET.tries = 0; guestRetry(); }
   });
