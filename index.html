@@ -193,10 +193,10 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
       <li><canvas data-ico="weiss"></canvas><span><b>Flugschaf: +1.</b> Triff es mit dem Ball. Der Punkt geht an den, der den Ball zuletzt berührt hat.</span></li>
       <li><canvas data-ico="gold"></canvas><span><b>Goldschaf: +3.</b> Klein, flink und selten.</span></li>
       <li><canvas data-ico="schwarz"></canvas><span><b>Schwarzes Schaf: −1.</b> Besser drumherum spielen.</span></li>
-      <li><canvas data-ico="kick"></canvas><span><b>Esel auf dem Netz.</b> Triffst du ihn, tritt er den Ball als Feuerball zum Gegner. Schlägt der direkt ein, gibt es 1 Punkt extra.</span></li>
+      <li><canvas data-ico="kick"></canvas><span><b>Esel auf dem Netz.</b> Triffst du ihn, tritt er den Ball als Feuerball tief ins Feld des Gegners.</span></li>
       <li><canvas data-ico="karotte"></canvas><span><b>Karotte.</b> Triff sie, dann wartet ein Rettungsesel auf deiner Seite und kickt dir einmal den Ball vom Boden wieder hoch.</span></li>
-      <li><canvas data-ico="feuer"></canvas><span><b>Lange Ballwechsel.</b> Mit jedem Netzüberflug werden Spiel und Musik schneller. Ab 6 Überflügen zählt der Ballwechsel doppelt, ab 12 dreifach.</span></li>
-      <li><canvas data-ico="hai"></canvas><span><b>Chaos für die Aufholjagd.</b> Wer zurückliegt, wächst manchmal zum Riesen. Wer klar führt, den schnappt gelegentlich der Hai, oder ein Sharknado schleudert den Ball auf seine Seite.</span></li>
+      <li><canvas data-ico="feuer"></canvas><span><b>Lange Ballwechsel.</b> Mit jedem Netzüberflug werden Spiel und Musik schneller. Jeder Ballwechsel zählt genau einen Punkt.</span></li>
+      <li><canvas data-ico="hai"></canvas><span><b>Chaos für die Aufholjagd.</b> Wer zurückliegt, wächst manchmal zum Riesen oder bekommt Ninja-Klone, die den Ball mit den Füßen jonglieren und rüberschmettern. Wer klar führt, den erwischt gelegentlich der Hai, die Blaue Glocke oder ein Sharknado. Beim Matchball kann der Ball zurückfliegen und dem Verlierer Punkte zurückholen.</span></li>
     </ul>
     <p class="lead">Gewonnen hat, wer zuerst 11 Punkte und 2 Punkte Vorsprung hat. Nach besonderen Punkten drückt der Sieger dem Verlierer einen Spruch rein, laut ausgesprochen.</p>
     <p class="row"><button class="mini" data-go="home">Zurück</button></p>
@@ -241,9 +241,10 @@ var MB = (function () {
   var UP_OFF = 19, UP_R = 25, LO_OFF = 13, LO_R = 33, BLOB_GY = GY - 44.5, SERVE_Y = 240;
   var RUN = 337.5, JUMP_V = 1132.5, GRAV = 4950, JUMP_BUF = 2475, BALL_G = 1575, HIT_V = 984;
   var PH_SERVE = 0, PH_PLAY = 1, PH_POINT = 2, PH_OVER = 3;
-  var EV = { HIT: 1, BOUNCE: 2, SHEEP: 3, GOLD: 4, BLACK: 5, KICK: 6, CARROT: 7, SAVE: 8, POINT: 9, CROSS: 10, SPAWN: 11, GONE: 12, OVER: 13, START: 14, SHARK: 15, GROW: 16, NADO: 17 };
-  var K = { SHEEP: 1, GOLD: 2, BLACK: 3, ESEL: 4, CARROT: 5, NADO: 6 };
-  var IR = [0, 27, 21, 27, 30, 20, 0];
+  var EV = { HIT: 1, BOUNCE: 2, SHEEP: 3, GOLD: 4, BLACK: 5, KICK: 6, CARROT: 7, SAVE: 8, POINT: 9, CROSS: 10, SPAWN: 11, GONE: 12, OVER: 13, START: 14, SHARK: 15, GROW: 16, NADO: 17, MIRACLE: 18, CBP: 19, NINJA: 20, SLAM: 21, BELL: 22 };
+  var K = { SHEEP: 1, GOLD: 2, BLACK: 3, ESEL: 4, CARROT: 5, NADO: 6, BELL: 7 };
+  var IR = [0, 27, 21, 27, 30, 20, 0, 0];
+  var NJ_IN = 0.7, NJ_PASS = 0.38, NJ_OUT = 0.3;   /* ninja helpers: slow-motion entrance, time per pass, final smash */
   /* comeback chaos (km bit 64): a giant figure is BIG times its size, measured from the FEET up */
   var BIG = 1.45, FEET = 46, IDLE = { l: false, r: false, j: false };
   /* 0 = Schaf (springt höher), 1 = Esel (läuft schneller) */
@@ -253,6 +254,9 @@ var MB = (function () {
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function fin(v, d) { return (typeof v === 'number' && isFinite(v)) ? v : d; }
   function r1(v) { return Math.round(v * 10) / 10; }
+  function r2(v) { return Math.round(v * 100) / 100; }
+  /* integer hash, identical on every phone (unlike Math.sin tricks) */
+  function ih(i, seed) { var x = (i * 374761393 + seed * 668265263) | 0; x = ((x ^ (x >>> 13)) * 1274126177) | 0; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; }
 
   /* ---------- blobs ---------- */
   function newBlob(side, ch) {
@@ -285,11 +289,15 @@ var MB = (function () {
       e: o.e || 1, o: sv, ph: PH_SERVE, n: 0, sv: sv, s: [0, 0], b: [sv ? 600 : 200, SERVE_Y, 0, 0],
       t: [0, 0], ls: -1, cr: 0, fb: -1, sh: [0, 0], it: [], ev: [], ni: o.ni || 1, ne: o.ne || 1,
       pt: 0, w: -1, st: 2.5, tg: o.tg || 15, bs: o.bs || 0.88, hc: [0, 0], km: o.km || 126,
-      big: [0, 0], out: [0, 0], sk: 0
+      big: [0, 0], out: [0, 0], sk: 0, sd: o.sd || 1 + Math.floor(rnd() * 9000), stn: [0, 0],
+      mir: 0, cb: 0, cbs: 0, cbt: 0, nj: 0, njT: 0, njs: 0, njn: 0, njx: 0, njb: [0, 0], njl: 0, njc: 0, nk: 0
     };
   }
-  function speedOf(M) { return M.bs * (M.ph === PH_PLAY ? 1 + 0.022 * Math.min(M.cr, 14) : 1); }
-  function rallyValue(M) { return 1 + (M.cr >= 6 ? 1 : 0) + (M.cr >= 12 ? 1 : 0); }
+  function speedOf(M) {
+    if (M.nj > 0 && M.njT - M.nj < NJ_IN) return M.bs * 0.3;
+    return M.bs * (M.ph === PH_PLAY ? 1 + 0.022 * Math.min(M.cr, 14) : 1);
+  }
+  function rallyValue(M) { return 1; }   /* a rally is always worth exactly one point */
   function ev(M, type, x, y, a, b) {
     M.ev.push([M.ne++, type, Math.round(x), Math.round(y), a | 0, b | 0]);
     if (M.ev.length > 10) M.ev.shift();
@@ -350,13 +358,14 @@ var MB = (function () {
   /* ---------- rally flow ---------- */
   function endRally(M, w, x, why) {
     var pts = rallyValue(M), fire = M.fb === w ? 1 : 0;
-    pts += fire;
     M.s[w] += pts; M.w = w; M.ph = PH_POINT; M.pt = 1.9;
     /* b: points + 10*why(0 ground,1 fault) + 100*fire */
     ev(M, EV.POINT, x, GY, w, pts + 10 * why + 100 * fire);
   }
   function nextRally(M) {
-    var lead = M.s[0] - M.s[1], top = Math.max(M.s[0], M.s[1]), al, tr;
+    var lead, top, al, tr;
+    while (M.cb > 0) { M.cb--; M.s[M.cbs]++; }
+    lead = M.s[0] - M.s[1]; top = Math.max(M.s[0], M.s[1]);
     if (top >= M.tg && Math.abs(lead) >= 2) {
       M.ph = PH_OVER; M.w = lead > 0 ? 0 : 1;
       ev(M, EV.OVER, NETX, 200, M.w, 0);
@@ -364,7 +373,7 @@ var MB = (function () {
     }
     M.n++; M.sv = M.w; M.ph = PH_SERVE;
     M.b = [M.sv ? 600 : 200, SERVE_Y, 0, 0];
-    M.t = [0, 0]; M.ls = -1; M.cr = 0; M.fb = -1; M.hc = [0, 0]; M.sk = 0; M.out = [0, 0];
+    M.t = [0, 0]; M.ls = -1; M.cr = 0; M.fb = -1; M.hc = [0, 0]; M.sk = 0; M.out = [0, 0]; M.nk = 0; M.nj = 0; M.stn = [0, 0];
     if (M.o !== M.sv) { M.o = M.sv; M.e++; }
     /* comeback help: whoever trails may start the rally as a giant; rarely it hits a random player */
     if (M.km & 64) {
@@ -373,6 +382,50 @@ var MB = (function () {
       else if (rnd() < 0.06) grow(M, rnd() < 0.5 ? 0 : 1);
     }
   }
+  /* the blue bell hunts the leader and rings them dizzy: they stand still for a moment */
+  function bellStep(M, blobs, dt) {
+    var i, it, lead = M.s[0] - M.s[1], ld = lead > 0 ? 0 : 1, tx, ty, dx, dy, d;
+    for (i = M.it.length - 1; i >= 0; i--) {
+      it = M.it[i]; if (it.k !== K.BELL) continue;
+      if (lead === 0) { M.it.splice(i, 1); continue; }
+      tx = blobs[ld].x; ty = blobs[ld].y - 50; dx = tx - it.x; dy = ty - it.y; d = Math.sqrt(dx * dx + dy * dy) || 1;
+      if (d < 30) { M.stn[ld] = 1.7; ev(M, EV.BELL, it.x, it.y, ld, 0); M.it.splice(i, 1); continue; }
+      it.x += dx / d * 215 * dt; it.y += dy / d * 215 * dt; it.vx = dx / d * 215;
+    }
+  }
+  /* ninja helpers: just before the clearly trailing player reaches the ball, copies of them take over,
+     juggle it 5 to 7 times with their feet and smash it onto the leader. Scripted, so both phones see the same. */
+  function ninjaCheck(M, blobs) {
+    var b = M.b, lead = M.s[0] - M.s[1], tr = lead >= 3 ? 1 : lead <= -3 ? 0 : -1, bl, dx, dy, n;
+    if (tr < 0 || M.nk || M.njc >= 2 || !(M.km & 64) || b[3] <= 0 || (b[0] < NETX) !== (tr === 0)) return;
+    bl = blobs[tr]; dx = b[0] - bl.x; dy = b[1] - (bl.y - UP_OFF);
+    if (dy > 0 || dx * dx + dy * dy > 150 * 150) return;
+    M.nk = 1;
+    if (rnd() >= Math.min(0.4, 0.2 + 0.05 * (Math.abs(lead) - 3))) return;
+    n = 5 + Math.floor(rnd() * 3);
+    M.njs = tr; M.njn = n; M.njx = 1 + Math.floor(rnd() * 900); M.njb = [b[0], b[1]]; M.njl = clamp(blobs[1 - tr].x, tr ? 40 : NETX + 50, tr ? NETX - 50 : W - 40);
+    M.njT = NJ_IN + (n - 1) * NJ_PASS + NJ_OUT; M.nj = M.njT; M.njc++;
+    M.fb = -1; M.t = [0, 0]; M.ls = tr;
+    ev(M, EV.NINJA, bl.x, bl.y, tr, n);
+  }
+  function ninjaPt(M, i) {
+    return [(M.njs ? 600 : 200) + ((i & 1) ? 1 : -1) * (45 + ih(i, M.njx) * 95), 105 + ih(i, M.njx + 7) * 120];
+  }
+  function ninjaBall(M) {
+    var t = M.njT - M.nj, n = M.njn, i, u, a, c;
+    if (t < NJ_IN) { u = t / NJ_IN; a = M.njb; c = ninjaPt(M, 0); return [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u - Math.sin(u * Math.PI) * 30]; }
+    t -= NJ_IN; i = Math.floor(t / NJ_PASS);
+    if (i < n - 1) { u = t / NJ_PASS - i; a = ninjaPt(M, i); c = ninjaPt(M, i + 1); return [a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u - Math.sin(u * Math.PI) * 46]; }
+    u = Math.min(1, (t - (n - 1) * NJ_PASS) / NJ_OUT); a = ninjaPt(M, n - 1);
+    return [a[0] + (M.njl - a[0]) * u, a[1] + (GY - BR - a[1]) * u * u];
+  }
+  function ninjaStep(M, dt) {
+    var b = M.b, p;
+    M.nj = Math.max(0, M.nj - dt); p = ninjaBall(M);
+    b[2] = clamp((p[0] - b[0]) / dt, -2500, 2500); b[3] = clamp((p[1] - b[1]) / dt, -2500, 2500); b[0] = p[0]; b[1] = p[1];
+    if (M.nj <= 0) { ev(M, EV.SLAM, b[0], GY, 1 - M.njs, M.njx & 1); endRally(M, M.njs, b[0], 0); b[2] = 0; b[3] = -260; }
+  }
+  function frozen(M, side) { return M.out[side] > 0 || M.stn[side] > 0; }
   function grow(M, side) { M.big[side] = 11; ev(M, EV.GROW, side ? 600 : 200, BLOB_GY - 70, side, 0); }
   /* the shark takes the clear leader just before they reach the ball; rolled once per rally */
   function sharkCheck(M, blobs) {
@@ -399,12 +452,21 @@ var MB = (function () {
     ev(M, EV.CROSS, M.b[0], M.b[1], to, M.cr);
   }
   function groundHit(M) {
-    var b = M.b, side = b[0] < NETX ? 0 : 1;
+    var b = M.b, side = b[0] < NETX ? 0 : 1, w;
     if (M.sh[side] > 0) {
       M.sh[side] = 0;
       b[1] = GY - BR - 1; b[3] = -900; b[2] = (side ? -1 : 1) * (50 + rnd() * 120);
       M.t = [0, 0]; M.ls = side; M.fb = -1;
       ev(M, EV.SAVE, b[0], GY, side, 0);
+      return;
+    }
+    /* match point miracle: the ball flies back and the loser collects up to three points, one at a time */
+    w = 1 - side;
+    if ((M.km & 64) && M.mir < 2 && M.s[w] + 1 >= M.tg && M.s[w] + 1 - M.s[side] >= 2 && rnd() < (M.mir ? 0.25 : 0.5)) {
+      M.mir++; M.cb = clamp(M.s[w] - M.s[side], 1, 3); M.cbs = side; M.cbt = 0.5;
+      b[1] = GY - BR - 1; b[3] = -1050; b[2] = (side ? -1 : 1) * (260 + rnd() * 120);
+      M.t = [0, 0]; M.ls = side; M.fb = -1;
+      ev(M, EV.MIRACLE, b[0], GY, side, M.cb);
       return;
     }
     endRally(M, 1 - side, b[0], 0);
@@ -414,15 +476,15 @@ var MB = (function () {
   /* ---------- extras: Schafe, Esel, Karotte ---------- */
   function itemY(it) { return it.k <= 3 ? it.y + Math.sin(it.a * 2.2) * 7 : it.y; }
   function spawn(M) {
-    var i, hasE = false, hasC = false, hasN = false, w, tot = 0, r, k, it, fromLeft, sp, tr;
+    var i, hasE = false, hasC = false, hasN = false, hasB = false, w, tot = 0, r, k, it, fromLeft, sp, tr;
     if (M.it.length >= 3) return;
-    for (i = 0; i < M.it.length; i++) { if (M.it[i].k === K.ESEL) hasE = true; if (M.it[i].k === K.CARROT) hasC = true; if (M.it[i].k === K.NADO) hasN = true; }
+    for (i = 0; i < M.it.length; i++) { if (M.it[i].k === K.ESEL) hasE = true; if (M.it[i].k === K.CARROT) hasC = true; if (M.it[i].k === K.NADO) hasN = true; if (M.it[i].k === K.BELL) hasB = true; }
     w = [[K.SHEEP, 44], [K.BLACK, 14], [K.GOLD, 9]];
     if (!hasE) w.push([K.ESEL, 17]);
     if (!hasC && !(M.sh[0] && M.sh[1])) w.push([K.CARROT, 16]);
-    if (!hasN && Math.abs(M.s[0] - M.s[1]) >= 2) w.push([K.NADO, 13]);
     /* km: bit k set = kind k may appear (the solo tour unlocks them stage by stage) */
     for (i = w.length - 1; i >= 0; i--) if (!(M.km & (1 << w[i][0]))) w.splice(i, 1);
+    if ((M.km & 64) && Math.abs(M.s[0] - M.s[1]) >= 2) { if (!hasN) w.push([K.NADO, 9]); if (!hasB) w.push([K.BELL, 6]); }
     if (!w.length) return;
     for (i = 0; i < w.length; i++) tot += w[i][1];
     r = rnd() * tot; k = w[0][0];
@@ -437,6 +499,9 @@ var MB = (function () {
     } else if (k === K.NADO) {
       tr = M.s[0] > M.s[1] ? 1 : 0;   /* it starts at the trailing player's wall */
       it.x = tr ? W + 50 : -50; it.vx = tr ? -95 : 95; it.y = GY;
+    } else if (k === K.BELL) {
+      tr = M.s[0] > M.s[1] ? 1 : 0;
+      it.x = tr ? W - 40 : 40; it.y = -40;
     } else {
       it.x = rnd() < 0.5 ? 110 + rnd() * 210 : 480 + rnd() * 210; it.y = -30;
     }
@@ -454,6 +519,7 @@ var MB = (function () {
       it = M.it[i];
       driftItem(it, dt);
       if (it.k <= 3 || it.k === K.NADO) { if (it.a > 2 && (it.x < -60 || it.x > W + 60)) M.it.splice(i, 1); }
+      else if (it.k === K.BELL) { if (it.a > 14) M.it.splice(i, 1); }
       else if (it.k === K.ESEL) { if (it.a > 11) { ev(M, EV.GONE, it.x, it.y, it.k, 0); M.it.splice(i, 1); } }
       else if (it.y > GY - 16) { ev(M, EV.GONE, it.x, it.y, it.k, 0); M.it.splice(i, 1); }
     }
@@ -463,7 +529,7 @@ var MB = (function () {
     if (ls < 0) return;
     for (i = M.it.length - 1; i >= 0; i--) {
       it = M.it[i]; iy = itemY(it);
-      if (it.k === K.NADO) continue;
+      if (it.k >= K.NADO) continue;
       dx = b[0] - it.x; dy = b[1] - iy; rr = BR + IR[it.k];
       if (dx * dx + dy * dy > rr * rr) continue;
       M.it.splice(i, 1);
@@ -485,7 +551,8 @@ var MB = (function () {
   function stepMatch(M, dt, blobs) {
     var i, c, bn, b = M.b;
     M.hc[0] = Math.max(0, M.hc[0] - dt); M.hc[1] = Math.max(0, M.hc[1] - dt);
-    for (i = 0; i < 2; i++) { if (M.big[i] > 0) M.big[i] = Math.max(0, M.big[i] - dt); if (M.out[i] > 0) M.out[i] = Math.max(0, M.out[i] - dt); }
+    for (i = 0; i < 2; i++) { if (M.big[i] > 0) M.big[i] = Math.max(0, M.big[i] - dt); if (M.out[i] > 0) M.out[i] = Math.max(0, M.out[i] - dt); if (M.stn[i] > 0) M.stn[i] = Math.max(0, M.stn[i] - dt); }
+    if (M.cb > 0) { M.cbt -= dt; if (M.cbt <= 0) { M.cb--; M.cbt = 0.55; M.s[M.cbs]++; ev(M, EV.CBP, M.cbs ? 600 : 200, 160, M.cbs, M.cb); } }
     stepItems(M, dt);
     if (M.ph === PH_SERVE) {
       for (i = 0; i < 2; i++) {
@@ -493,9 +560,11 @@ var MB = (function () {
         if (c) { M.ph = PH_PLAY; doHit(M, blobs[i], c); break; }
       }
     } else if (M.ph === PH_PLAY) {
+      if (M.nj > 0) { ninjaStep(M, dt); return; }
       bn = ballMove(M, dt);
       if (bn) ev(M, EV.BOUNCE, b[0], b[1], bn, 0);
-      sharkCheck(M, blobs); nadoHits(M);
+      sharkCheck(M, blobs); nadoHits(M); bellStep(M, blobs, dt); ninjaCheck(M, blobs);
+      if (M.nj > 0) return;
       for (i = 0; i < 2; i++) {
         c = blobTouch(M, blobs[i]);
         if (c) { doHit(M, blobs[i], c); if (M.ph !== PH_PLAY) return; }
@@ -532,7 +601,9 @@ var MB = (function () {
       b: [r1(M.b[0]), r1(M.b[1]), r1(M.b[2]), r1(M.b[3])], t: [M.t[0], M.t[1]], ls: M.ls, cr: M.cr, fb: M.fb,
       sh: [M.sh[0], M.sh[1]], it: it, ev: M.ev.slice(0), ni: M.ni, ne: M.ne, pt: r1(M.pt), w: M.w, st: r1(M.st),
       tg: M.tg, bs: M.bs, hc: [r1(M.hc[0]), r1(M.hc[1])], km: M.km,
-      big: [r1(M.big[0]), r1(M.big[1])], out: [r1(M.out[0]), r1(M.out[1])], sk: M.sk
+      big: [r1(M.big[0]), r1(M.big[1])], out: [r1(M.out[0]), r1(M.out[1])], sk: M.sk, sd: M.sd, stn: [r1(M.stn[0]), r1(M.stn[1])],
+      mir: M.mir, cb: M.cb, cbs: M.cbs, cbt: r2(M.cbt), nj: r2(M.nj), njT: r2(M.njT), njs: M.njs, njn: M.njn, njx: M.njx,
+      njb: [r1(M.njb[0]), r1(M.njb[1])], njl: r1(M.njl), njc: M.njc, nk: M.nk
     };
   }
   function side3(v) { return v === 0 ? 0 : v === 1 ? 1 : -1; }
@@ -550,14 +621,19 @@ var MB = (function () {
       hc: [clamp(fin(p.hc && p.hc[0], 0), 0, 1), clamp(fin(p.hc && p.hc[1], 0), 0, 1)],
       km: (fin(p.km, 126) | 0) & 126,
       big: [clamp(fin(p.big && p.big[0], 0), 0, 30), clamp(fin(p.big && p.big[1], 0), 0, 30)],
-      out: [clamp(fin(p.out && p.out[0], 0), 0, 5), clamp(fin(p.out && p.out[1], 0), 0, 5)], sk: p.sk ? 1 : 0
+      out: [clamp(fin(p.out && p.out[0], 0), 0, 5), clamp(fin(p.out && p.out[1], 0), 0, 5)], sk: p.sk ? 1 : 0,
+      sd: clamp(fin(p.sd, 1) | 0, 1, 99999), stn: [clamp(fin(p.stn && p.stn[0], 0), 0, 5), clamp(fin(p.stn && p.stn[1], 0), 0, 5)],
+      mir: clamp(fin(p.mir, 0) | 0, 0, 9), cb: clamp(fin(p.cb, 0) | 0, 0, 3), cbs: p.cbs ? 1 : 0, cbt: clamp(fin(p.cbt, 0), 0, 2),
+      nj: clamp(fin(p.nj, 0), 0, 8), njT: clamp(fin(p.njT, 0), 0, 8), njs: p.njs ? 1 : 0, njn: clamp(fin(p.njn, 5) | 0, 2, 8), njx: clamp(fin(p.njx, 1) | 0, 0, 9999),
+      njb: [clamp(fin(p.njb && p.njb[0], 400), 0, W), clamp(fin(p.njb && p.njb[1], 200), -2000, GY)], njl: clamp(fin(p.njl, 400), 0, W),
+      njc: clamp(fin(p.njc, 0) | 0, 0, 9), nk: p.nk ? 1 : 0
     };
     if (p.it && p.it.length) {
       for (i = 0; i < p.it.length && i < 6; i++) {
         a = p.it[i];
         if (!a || !(a.length >= 6)) continue;
         e = fin(a[1], 0) | 0;
-        if (e < 1 || e > 6) continue;
+        if (e < 1 || e > 7) continue;
         M.it.push({ i: fin(a[0], 0) | 0, k: e, x: clamp(fin(a[2], 0), -100, W + 100), y: clamp(fin(a[3], 0), -100, GY), vx: clamp(fin(a[4], 0), -400, 400), a: clamp(fin(a[5], 0), 0, 600), c: clamp(fin(a[6], 0), 0, 5) });
       }
     }
@@ -652,7 +728,7 @@ var MB = (function () {
     var M = this.M, sp = speedOf(M), sdt = dt * sp, k, ex, tx, ty, n0, ph0, i, b;
     this.rxAge += dt;
     this.stalled = this.rxAge > 0.9;
-    stepBlob(this.me, M.out[this.side] > 0 ? IDLE : inp, sdt, sizeOf(M, this.side));
+    stepBlob(this.me, frozen(M, this.side) ? IDLE : inp, sdt, sizeOf(M, this.side));
     if (this.opT) {
       this.opAge += dt;
       ex = Math.min(this.opAge, 0.12) * sp;
@@ -673,7 +749,9 @@ var MB = (function () {
       this.gAge += dt;
       if (this.gAge < 0.3) {
         b = M.b;
-        if (M.ph === PH_PLAY) {
+        if (M.ph === PH_PLAY && M.nj > 0) {
+          M.nj = Math.max(0.01, M.nj - sdt); k = ninjaBall(M); b[0] = k[0]; b[1] = k[1];
+        } else if (M.ph === PH_PLAY) {
           ballMove(M, sdt);
           if (b[1] + BR >= GY) { b[1] = GY - BR; b[2] = 0; b[3] = 0; }
         } else if (M.ph !== PH_SERVE) looseBall(M, sdt);
@@ -725,7 +803,7 @@ var MB = (function () {
   };
   NetGame.prototype.rematch = function () {
     var old = this.M;
-    this.M = newMatch({ sv: old.w === 0 ? 1 : 0, e: old.e + 1, ni: old.ni, ne: old.ne, tg: old.tg, bs: old.bs, km: old.km });
+    this.M = newMatch({ sv: old.w === 0 ? 1 : 0, e: old.e + 1, ni: old.ni, ne: old.ne, tg: old.tg, bs: old.bs, km: old.km, sd: 1 + (old.sd * 7 + old.ne) % 9000 });
     ev(this.M, EV.START, NETX, 200, 0, 0);
     this.collect();
     homeBlob(this.me);
@@ -740,7 +818,8 @@ var MB = (function () {
     W: W, GY: GY, NETX: NETX, NETR: NETR, NETTOP: NETTOP, BR: BR, BLOB_GY: BLOB_GY, UP_OFF: UP_OFF, UP_R: UP_R, LO_OFF: LO_OFF, LO_R: LO_R,
     JUMP_V: JUMP_V, PH_SERVE: PH_SERVE, PH_PLAY: PH_PLAY, PH_POINT: PH_POINT, PH_OVER: PH_OVER, EV: EV, K: K, IR: IR, LEVELS: LEVELS,
     newBlob: newBlob, homeBlob: homeBlob, stepBlob: stepBlob, newMatch: newMatch, stepMatch: stepMatch, speedOf: speedOf,
-    rallyValue: rallyValue, itemY: itemY, sizeOf: sizeOf, BIG: BIG, FEET: FEET, IDLE: IDLE, newAI: newAI, aiStep: aiStep, NetGame: NetGame, pack: pack, unpack: unpack,
+    rallyValue: rallyValue, itemY: itemY, sizeOf: sizeOf, BIG: BIG, FEET: FEET, IDLE: IDLE, frozen: frozen, ninjaPt: ninjaPt, ih: ih,
+    NJ_IN: NJ_IN, NJ_PASS: NJ_PASS, NJ_OUT: NJ_OUT, newAI: newAI, aiStep: aiStep, NetGame: NetGame, pack: pack, unpack: unpack,
     setRnd: function (f) { rnd = f; }
   };
 })();
@@ -1074,6 +1153,7 @@ function drawItem(g, it, bxy, t) {
   var y = MB.itemY(it), k = it.k, sc, dx, dy, d, f;
   g.save(); g.translate(it.x, y);
   if (k === K.NADO) { drawNado(g, it.a); g.restore(); return; }
+  if (k === K.BELL) { drawBell(g, it.a); g.restore(); return; }
   if (k <= 3) {
     sc = k === K.GOLD ? 0.8 : 1;
     g.scale(it.vx < 0 ? -sc : sc, sc); drawFlySheep(g, k, it.a + it.i);
@@ -1131,6 +1211,25 @@ function drawNado(g, a) {
     miniShark(g, Math.cos(ang) * (23 + i * 6), -8 - i * 29 + Math.sin(ang * 2) * 4, Math.sin(ang) > 0 ? -1 : 1);
   }
 }
+function drawBell(g, a) {
+  var fl = Math.sin(a * 16) * 0.5;
+  wing(g, -6, -6, 0.5 + fl, '#F4FBFF'); g.save(); g.scale(-1, 1); wing(g, -6, -6, 0.5 + fl, '#F4FBFF'); g.restore();
+  g.save(); g.rotate(Math.sin(a * 9) * 0.25);
+  g.fillStyle = INK; g.fillRect(-3, -26, 6, 6);
+  g.fillStyle = '#3D73DB'; g.strokeStyle = INK; g.lineWidth = 2.6; g.lineJoin = 'round';
+  g.beginPath(); g.moveTo(-18, 12); g.quadraticCurveTo(-14, -4, -9, -13); g.quadraticCurveTo(0, -23, 9, -13); g.quadraticCurveTo(14, -4, 18, 12); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = '#8FB3F5'; ell(g, -5, -6, 3, 7, 0.3); g.fill();
+  g.fillStyle = HAY; circ(g, 0, 15, 4.6); g.fill(); g.stroke();
+  g.restore();
+}
+/* a ninja helper: a smaller copy of the player with a headband; rot spins it around its middle */
+function drawNinja(g, ch, x, y, rot, flip, alpha, team) {
+  g.save(); g.globalAlpha = alpha; g.translate(x, y); g.rotate(rot); g.scale(flip ? -0.72 : 0.72, 0.72);
+  if (ch === 0) sheepBody(g, 0.8, -0.3, false, team); else eselBody(g, 0.8, -0.3, false, team, 0.3);
+  g.lineCap = 'round'; g.strokeStyle = INK; g.lineWidth = 10; g.beginPath(); g.moveTo(-23, -31); g.lineTo(24, -33); g.moveTo(-23, -31); g.lineTo(-40, -24); g.moveTo(-23, -31); g.lineTo(-38, -38); g.stroke();
+  g.strokeStyle = '#D7263D'; g.lineWidth = 5.5; g.stroke();
+  g.restore();
+}
 function drawBubble(g, bub, bx, by) {
   var px = 15.5, lh = 19, pad = 11, w, i, line = '', test, bw, bh, x, y, tx, a = Math.min(1, bub.t / 0.14);
   g.font = '900 ' + px + 'px ' + FONT; g.textAlign = 'left'; g.textBaseline = 'middle';
@@ -1184,8 +1283,8 @@ if (!save.stars || !save.stars.length) save.stars = [0, 0, 0, 0, 0, 0, 0, 0];
 
 /* the solo tour: eight stages uphill, each one faster, each unlocking the next */
 var STAGES = [
-  { n: 'Streichelwiese', alt: 820, km: 2, neu: 'Flugschaf treffen bringt +1' },
-  { n: 'Talweide', alt: 1040, km: 34, neu: 'Neu: Karotte treffen holt den Rettungsesel' },
+  { n: 'Streichelwiese', alt: 820, km: 66, neu: 'Flugschaf treffen bringt +1' },
+  { n: 'Talweide', alt: 1040, km: 98, neu: 'Neu: Karotte treffen holt den Rettungsesel' },
   { n: 'Bergbauernhof', alt: 1310, km: 114, neu: 'Neu: Esel auf dem Netz tritt Feuerbälle' },
   { n: 'Hochalm', alt: 1580, km: 122, neu: 'Neu: Schwarzes Schaf kostet 1 Punkt' },
   { n: 'Felsgrat', alt: 1850, km: 126, neu: 'Neu: Goldschaf bringt +3' },
@@ -1282,6 +1381,12 @@ var SFX = {
   grow: function () { tone('sawtooth', 110, 440, 0.5, 0.24); tone('sine', 660, 1320, 0.3, 0.16, 0.3); },
   nado: function () { noise(1.4, 0.3, 500); tone('sine', 620, 620, 1.2, 0.12, 0, [3, 180]); },
   whoosh: function () { noise(0.35, 0.4, 1300); tone('sine', 280, 900, 0.3, 0.16); },
+  gong: function () { tone('sine', 110, 104, 1.4, 0.5); tone('sine', 220, 214, 1, 0.2); noise(0.25, 0.3, 400); },
+  kick: function (i) { var p = 1 + i * 0.09; tone('square', 520 * p, 780 * p, 0.07, 0.16); noise(0.04, 0.25, 1800); },
+  bell: function () { tone('sine', 1180, 1170, 1.1, 0.35); tone('sine', 1770, 1760, 0.7, 0.18); },
+  rewind: function () { tone('sawtooth', 200, 1400, 0.45, 0.18); tone('sine', 400, 1600, 0.5, 0.2, 0.05); },
+  boom: function () { noise(0.6, 0.7, 180); tone('sine', 120, 30, 0.5, 0.6); },
+  squash: function () { tone('sine', 300, 60, 0.25, 0.5); noise(0.12, 0.4, 500); },
   tap: function () { tone('square', 880, 620, 0.045, 0.07, 0, null, true); },
   fan: function () { var n = [523, 659, 784, 1047, 1319], i; for (i = 0; i < n.length; i++) tone('triangle', n[i], n[i], i === 4 ? 0.5 : 0.14, 0.26, i * 0.12); SFX.maeh(1.1); },
   boo: function () { tone('triangle', 392, 370, 0.2, 0.2); tone('triangle', 330, 311, 0.2, 0.2, 0.2); tone('triangle', 262, 196, 0.5, 0.22, 0.4); }
@@ -1422,7 +1527,7 @@ var TAUNTS = [
   'Sapperlot! Statt des Balles hast du nur die Luft der Berge erwischt.',
   'Gschamster Diener! Dank der Gnade meines Könnens bleibt dir die Schmach des Zuschauens.',
   'Na servas. Zeit deines Lebens wirst du dich dieses Balles entsinnen.',
-  'Kruzitürken, war das leiwand. Also meinerseits.',
+  'Jessas, war das leiwand. Also meinerseits.',
   'Jenseits der Grenzen deines Talents liegt, mein Freund, das Netz.',
   'Habe die Ehre! Laut dem Urteil des Hohen Rates der Schafe und Esel: owned.',
   'Mittels der Kunst des Lupfens ward dein Stolz soeben gebrochen.',
@@ -1487,7 +1592,7 @@ function ballXY() { return S.net ? S.net.ballPos() : [S.M.b[0], S.M.b[1]]; }
 function baseSession(mode) {
   parts = []; pops = []; ban = null; shake = 0; acc = 0;
   return { mode: mode, side: 0, level: 0, M: null, blobs: null, ai: [null, null], net: null, paused: false, over: false, overT: 0, t: 0, lastEv: 0,
-    srvN: -1, ang: 0, sq: [0, 0], bump: [0, 0], stat: newStat(), stallT: 0, shown: false, mb: false, air: [false, false], first: true, netT: 0, gs: [1, 1], bubble: null, taunts: 0, queue: [], smashT: 0 };
+    srvN: -1, ang: 0, sq: [0, 0], bump: [0, 0], stat: newStat(), stallT: 0, shown: false, mb: false, air: [false, false], first: true, netT: 0, gs: [1, 1], bubble: null, taunts: 0, queue: [], smashT: 0, flat: [0, 0], boom: [0, 0], njk: -1 };
 }
 function newStat() { return { schaf: 0, gold: 0, schwarz: 0, kick: 0, save: 0, lang: 0, smash: 0 }; }
 function setTheme(i) { i = clamp(i | 0, 0, 7); if (i !== theme) { theme = i; bg.dirty = true; } }
@@ -1551,31 +1656,40 @@ function onEvent(e) {
   else if (ty === EV.SAVE) { pop(x, GY - 70, 'Gerettet! I-AAH!', HAY, 28); puff(x, GY - 6, 12, 'rgba(240,230,200,0.9)', 170, 8); sfx('iaah'); shake = 0.5; if (mine) S.stat.save++; }
   else if (ty === EV.CROSS) {
     if (b > S.stat.lang) S.stat.lang = b;
-    if (b === 6 || b === 12) { pop(NETX, 150, b === 6 ? 'Ballwechsel zählt doppelt!' : 'Ballwechsel zählt dreifach!', HAY, 24); sfx('bonus'); }
   }
   else if (ty === EV.SPAWN) {
     if (a === K.ESEL && !demo) pop(NETX, NETTOP - 78, 'Esel auf dem Netz!', HAY, 20);
     if (a === K.NADO) { sfx('nado'); if (!demo) pop(NETX, 118, 'SHARKNADO!', '#9FD0FF', 34); }
+    if (a === K.BELL && !demo) pop(NETX, 110, 'Die Blaue Glocke jagt den Führenden!', '#9FC2FF', 20);
   }
   else if (ty === EV.SHARK) { sfx('shark'); shake = 0.9; puff(x, GY - 4, 14, 'rgba(120,90,60,0.9)', 220, 8, 300); if (!demo) pop(x, GY - 190, 'HAPPS! Der Hai!', '#9FD0FF', 30); }
   else if (ty === EV.GROW) { sfx('grow'); puff(x, y, 14, '#FFD447', 200, 6); if (!demo) pop(x, y - 60, curBlobs()[a].ch ? 'RIESEN-ESEL!' : 'RIESEN-SCHAF!', '#FFD447', 30); }
+  else if (ty === EV.BELL) { sfx('bell'); shake = 0.5; puff(x, y, 10, '#9FC2FF', 180, 5); if (!demo) pop(x, y - 34, 'DONG! Benommen', '#9FC2FF', 26); }
+  else if (ty === EV.MIRACLE) { sfx('rewind'); shake = 0.7; puff(x, GY - 6, 14, '#FFD447', 220, 7); if (!demo) banner('MATCHBALL ABGEWEHRT!', 'Der Ball fliegt zurück', 2.2); }
+  else if (ty === EV.CBP) { sfx('bonus'); S.bump[a] = 1; if (!demo) pop(x, y, '+1 Aufholjagd', HAY, 28); }
+  else if (ty === EV.NINJA) { sfx('gong'); S.njk = -1; if (!demo) pop(x, y - 120, 'NINJA-KLONE!', '#FFD447', 32); }
+  else if (ty === EV.SLAM) {
+    shake = 1; puff(x, GY - 8, 18, b ? '#FF9A3D' : 'rgba(120,90,60,0.9)', 300, 9, 200);
+    if (b) { S.boom[a] = 1.5; sfx('boom'); puff(x, GY - 40, 16, '#FFD447', 320, 7); } else { S.flat[a] = 1.5; sfx('squash'); }
+    if (!demo) pop(x, GY - 120, b ? 'BUMM!' : 'PLATT!', '#FF9A3D', 36);
+  }
   else if (ty === EV.NADO) { sfx('whoosh'); puff(x, y, 10, 'rgba(200,210,230,0.9)', 240, 6); if (!demo) pop(x, y - 30, 'Wuuusch!', '#9FD0FF', 24); }
   else if (ty === EV.POINT) {
     pts = b % 10; why = Math.floor(b / 10) % 10; fire = b >= 100;
     pop(x, GY - 54, '+' + pts, WOOL, 40); puff(x, GY - 4, 10, 'rgba(240,230,200,0.9)', 150, 8, 300);
     S.bump[a] = 1; shake = Math.max(shake, 0.6);
     if (!demo) {
-      sub = why === 1 ? 'Vier Berührungen sind eine zu viel' : fire ? 'Feuerball eingeschlagen: 1 Punkt extra' : pts > 1 ? 'Langer Ballwechsel: ' + pts + ' Punkte' : '';
+      sub = why === 1 ? 'Vier Berührungen sind eine zu viel' : fire ? 'Feuerball eingeschlagen' : pts > 1 ? 'Langer Ballwechsel: ' + pts + ' Punkte' : '';
       banner((pts > 1 ? pts + ' Punkte' : 'Punkt') + ' für ' + who(a), sub, 1.7);
       sfx(mine ? 'mine' : 'theirs');
       /* the winner's line: after most spectacular rallies, always on the last point, and forced earlier whenever
          the match is running out of points to reach three; picked from the event so both phones hear the same one */
       top = Math.max(M.s[0], M.s[1]); last = top >= M.tg && Math.abs(M.s[0] - M.s[1]) >= 2;
-      force = last || (S.taunts < 3 && top >= Math.round(M.tg * 0.27 * (S.taunts + 1)));
-      if (force || ((M.cr >= 5 || pts >= 2 || fire || S.smashT > 0) && hsh(e[0], 5) < 0.5)) {
-        speak(a, TAUNTS[(e[0] * 7 + S.taunts * 5) % TAUNTS.length], true);
+      force = last || (S.taunts < 2 && top >= Math.round(M.tg * 0.38 * (S.taunts + 1)));
+      if (force || ((M.cr >= 7 || fire || S.smashT > 0) && MB.ih(e[0], M.sd + 5) < 0.1)) {
+        speak(a, TAUNTS[Math.floor(MB.ih(e[0], M.sd + S.taunts) * TAUNTS.length)], true);
         /* a very short match ends with a longer victory speech, so it still gets its three */
-        while (last && S.taunts + S.queue.length < 3) S.queue.push([a, TAUNTS[(e[0] * 7 + (S.taunts + S.queue.length) * 5) % TAUNTS.length]]);
+        while (last && S.taunts + S.queue.length < 3) S.queue.push([a, TAUNTS[Math.floor(MB.ih(e[0] + 1 + S.queue.length, M.sd + S.taunts) * TAUNTS.length)]]);
       }
     }
   }
@@ -1595,8 +1709,8 @@ function onServe(M) {
   if (S.mode === 'demo') return;
   if (S.mode === 'online') setTheme(Math.floor(top / M.tg * 7));
   if (top >= M.tg - 1 && lead !== 0 && M.n > 0) { banner('MÄÄHTCHBALL!', 'Matchball für ' + who(lead > 0 ? 0 : 1), 2); if (!S.mb) { S.mb = true; sfx('maeh', 0.8); } }
-  /* now and then the server announces what is about to happen */
-  if (!S.bubble && (M.n === 0 || hsh(M.n * 13 + M.s[0] * 3 + M.s[1], 9) < 0.34)) speak(M.sv, SERVES[(M.n * 5 + M.s[0] + M.s[1] * 3) % SERVES.length], false);
+  /* now and then (not every match, never the same line by rule) the server announces what is about to happen */
+  if (!S.bubble && MB.ih(M.n + 1, M.sd) < (M.n === 0 ? 0.3 : 0.1)) speak(M.sv, SERVES[Math.floor(MB.ih(M.n + 7, M.sd + 3) * SERVES.length)], false);
 }
 
 /* ---------- one physics step ---------- */
@@ -1611,7 +1725,7 @@ function stepSession(dt) {
     S.stallT = S.net.stalled ? S.stallT + dt : 0;
   } else {
     M = S.M; sdt = dt * MB.speedOf(M); n0 = M.n; ph0 = M.ph;
-    for (i = 0; i < 2; i++) MB.stepBlob(S.blobs[i], M.out[i] > 0 ? MB.IDLE : (S.ai[i] ? MB.aiStep(S.ai[i], M, S.blobs[i], sdt) : input()), sdt, MB.sizeOf(M, i));
+    for (i = 0; i < 2; i++) MB.stepBlob(S.blobs[i], MB.frozen(M, i) ? MB.IDLE : (S.ai[i] ? MB.aiStep(S.ai[i], M, S.blobs[i], sdt) : input()), sdt, MB.sizeOf(M, i));
     MB.stepMatch(M, sdt, S.blobs);
     if (M.ph === MB.PH_SERVE && (M.n !== n0 || ph0 !== MB.PH_SERVE)) { MB.homeBlob(S.blobs[0]); MB.homeBlob(S.blobs[1]); }
     for (i = 0; i < M.ev.length; i++) { e = M.ev[i]; if (e[0] > S.lastEv) { S.lastEv = e[0]; onEvent(e); } }
@@ -1624,7 +1738,7 @@ function stepSession(dt) {
     else if (!air && S.air[i]) { sfx('land', i === S.side); S.sq[i] = 1; puff(bl[i].x, GY - 3, 4, 'rgba(240,230,200,0.8)', 90, 6); }
     S.air[i] = air; bl[i].land = 0; bl[i].jmp = 0;
   }
-  if (M.ph === MB.PH_SERVE && S.srvN !== M.n) { S.srvN = M.n; onServe(M); }
+  if (M.ph === MB.PH_SERVE && S.srvN !== M.n && (!S.net || M.e > 0)) { S.srvN = M.n; onServe(M); }
   S.ang += M.b[2] * dt / BR;
   S.t += dt;
 }
@@ -1642,6 +1756,11 @@ function updateFx(dt) {
   if (!S) return;
   M = curM();
   for (i = 0; i < 2; i++) { S.sq[i] = Math.max(0, S.sq[i] - dt * 6); S.bump[i] = Math.max(0, S.bump[i] - dt * 3); S.gs[i] += (MB.sizeOf(M, i) - S.gs[i]) * Math.min(1, dt * 7); }
+  for (i = 0; i < 2; i++) { if (S.flat[i] > 0) { S.flat[i] -= dt; S.sq[i] = 4.4; } if (S.boom[i] > 0) S.boom[i] -= dt; }
+  if (M.nj > 0 && M.ph === MB.PH_PLAY) {
+    i = Math.floor((M.njT - M.nj - MB.NJ_IN) / MB.NJ_PASS);
+    if (i >= 0 && i < M.njn && i !== S.njk) { S.njk = i; p = MB.ninjaPt(M, i); sfx('kick', i); puff(p[0], p[1], 5, '#FFD447', 160, 5); }
+  }
   if (S.bubble) { S.bubble.t += dt; if (S.bubble.t > S.bubble.d) S.bubble = null; }
   if (!S.bubble && S.queue.length) { p = S.queue.shift(); speak(p[0], p[1], true); }
   if (S.paused) return;
@@ -1649,6 +1768,22 @@ function updateFx(dt) {
   if (M.fb >= 0 && M.ph === MB.PH_PLAY) { p = ballXY(); puff(p[0], p[1], 1, Math.random() < 0.5 ? '#FF9A3D' : '#FFD447', 50, 9, -120); }
   for (i = 0; i < M.it.length; i++) { it = M.it[i]; if (it.k === K.GOLD && Math.random() < 0.3) puff(it.x, MB.itemY(it), 1, '#FFF3B0', 40, 3); }
   if (S.over) S.overT += dt;
+}
+/* where helper k is at script time t: [x, y, rotation, opacity]; upside down (feet up) at each of its kicks */
+function ninjaPose(M, k, t, home) {
+  var n = M.njn, IN = MB.NJ_IN, PS = MB.NJ_PASS, dir = (k & 1) ? -1 : 1, t0 = 0.1 * (k + 1), ta = IN + k * PS, i, u, a, b;
+  if (k >= n || t < t0) return null;
+  if (t < ta) {
+    u = (t - t0) / (ta - t0); b = MB.ninjaPt(M, k);
+    return [home.x + (b[0] - home.x) * u, home.y + (b[1] + 50 - home.y) * u - Math.sin(u * Math.PI) * 40, Math.PI * u * dir, 0.35 + 0.65 * u];
+  }
+  i = k + 3 * Math.floor((t - ta) / (3 * PS)); a = MB.ninjaPt(M, Math.min(i, n - 1));
+  if (i + 3 < n) {
+    u = (t - (IN + i * PS)) / (3 * PS); b = MB.ninjaPt(M, i + 3);
+    return [a[0] + (b[0] - a[0]) * u, a[1] + 50 + (b[1] - a[1]) * u - Math.sin(u * Math.PI) * 70, Math.PI + 2 * Math.PI * u * dir, 1];
+  }
+  u = (t - (IN + i * PS)) / 0.7; if (u > 1 || i >= n) return null;
+  return [a[0] + dir * 34 * u, a[1] + 50 + 150 * u * u, Math.PI + 2 * Math.PI * u * dir, 1 - u];
 }
 function padBtn(g, c, R, dir, on) {
   g.fillStyle = on ? 'rgba(255,247,230,0.55)' : 'rgba(255,247,230,0.24)'; g.strokeStyle = 'rgba(51,38,31,0.55)'; g.lineWidth = 2.5;
@@ -1676,8 +1811,18 @@ function render() {
   g.fillStyle = 'rgba(20,40,20,' + (0.3 - 0.2 * a).toFixed(2) + ')'; ell(g, bxy[0], GY + 3, 30 - 14 * a, 5.5 - 2 * a, 0); g.fill();
   for (i = 0; i < 2; i++) {
     u = M.out[i] > 0 ? 1 - M.out[i] / 1.7 : -1;   /* progress of the shark's bite, -1 = no shark */
-    if (u < 0.14) drawBlob(g, bl[i], i, S.sq[i], bxy, t, S.gs[i]);
+    if (u < 0.14 && S.boom[i] <= 0) drawBlob(g, bl[i], i, S.sq[i], bxy, t, S.gs[i]);
+    if (M.stn[i] > 0) for (k = 0; k < 3; k++) text(g, '\u2605', bl[i].x + Math.cos(t * 7 + k * 2.1) * 26, bl[i].y - 58 * S.gs[i] + Math.sin(t * 7 + k * 2.1) * 7, 15, HAY, INK, 4);
     if (u >= 0) { g.save(); g.translate(bl[i].x, GY + 2); drawShark(g, u < 0.2 ? u / 0.2 : u > 0.78 ? Math.max(0, 1 - (u - 0.78) / 0.22) : 1); g.restore(); }
+  }
+  if (M.nj > 0 && M.ph === MB.PH_PLAY) {
+    /* slow-motion veil, then the helpers: each one flips from kick to kick and meets the ball feet first */
+    u = M.njT - M.nj;
+    if (u < MB.NJ_IN) { g.fillStyle = 'rgba(30,50,120,' + (0.2 * Math.min(1, u / 0.15)).toFixed(3) + ')'; g.fillRect(view.xl - 10, view.yt - 10, view.xr - view.xl + 20, view.yb - view.yt + 20); }
+    for (k = 0; k < 3; k++) for (i = 2; i >= 0; i--) {
+      p = ninjaPose(M, k, u - i * 0.045, bl[M.njs]);
+      if (p) drawNinja(g, bl[M.njs].ch, p[0], p[1], p[2], M.njs === 1, p[3] * (i ? 0.22 : 1), TEAM[M.njs]);
+    }
   }
   fire = M.fb >= 0 && M.ph === MB.PH_PLAY;
   if (fire) { p = g.createRadialGradient(bxy[0], bxy[1], BR * 0.6, bxy[0], bxy[1], BR * 2); p.addColorStop(0, 'rgba(255,170,60,0.55)'); p.addColorStop(1, 'rgba(255,170,60,0)'); g.fillStyle = p; circ(g, bxy[0], bxy[1], BR * 2); g.fill(); }
