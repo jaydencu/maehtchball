@@ -44,7 +44,7 @@ li span b{font-weight:800}
   text-shadow:3px 3px 0 #33261F,-3px 3px 0 #33261F,3px -3px 0 #33261F,-3px -3px 0 #33261F,0 3px 0 #33261F,0 -3px 0 #33261F,3px 0 0 #33261F,-3px 0 0 #33261F,0 8px 0 #33261F}
 .tag{margin:14px 0 10px;font-size:16px;color:#FFF7E6;text-shadow:0 2px 0 rgba(0,0,0,.5)}
 .pick{margin:8px 0 6px;white-space:nowrap}
-.chip{display:inline-block;vertical-align:top;width:132px;margin:0 5px;padding:4px 6px 8px;background:#FFF7E6;border:3px solid #33261F;border-radius:16px;box-shadow:0 4px 0 #33261F;opacity:.85}
+.chip{display:inline-block;vertical-align:top;width:104px;margin:0 3px;padding:4px 6px 8px;background:#FFF7E6;border:3px solid #33261F;border-radius:16px;box-shadow:0 4px 0 #33261F;opacity:.85}
 .chip canvas{display:block;width:56px;height:56px;margin:0 auto}
 .chip b{display:block;font-size:17px;line-height:1.1}
 .chip small{display:block;font-size:12px;line-height:1.25;opacity:.85}
@@ -108,7 +108,7 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
   .scr{padding:8px 12px 12px}
   .logo{font-size:44px}.tag{margin:10px 0 6px;font-size:14px}
   .sign{margin:7px auto;padding-top:8px;padding-bottom:8px;font-size:18px}.sign small{font-size:12px}
-  .chip canvas{width:46px;height:46px}.chip{width:122px;padding-bottom:5px}
+  .chip canvas{width:46px;height:46px}.chip{width:100px;padding-bottom:5px}
   .row{margin-top:4px}.board{padding:10px 14px}h2{font-size:22px}.lead{margin-bottom:8px;font-size:14px}
   .stage{padding:4px 8px}.rules li{margin-bottom:3px}.rules canvas{-webkit-flex-basis:38px;flex-basis:38px;width:38px;height:38px}.rules span{font-size:13px}
   .score{font-size:40px}
@@ -124,14 +124,79 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
 <button id="b-pause" aria-label="Pause" hidden>II</button>
 <div id="ui">
 
+<section class="scr" id="s-mode">
+  <div class="cols">
+    <div class="col">
+      <h1 class="logo">Määhtchball</h1>
+      <p class="tag">Zwei Spiele auf der Alm. Such dir eine Figur aus.</p>
+      <div class="pick" role="group" aria-label="Deine Figur">
+        <button class="chip" data-ch="0"><canvas data-ico="schaf"></canvas><b>Schaf</b><small>springt höher</small></button>
+        <button class="chip" data-ch="1"><canvas data-ico="esel"></canvas><b>Esel</b><small>läuft schneller</small></button>
+        <button class="chip" data-ch="2"><canvas data-ico="pinguin"></canvas><b>Pinguin</b><small>kann beides</small></button>
+      </div>
+    </div>
+    <div class="col">
+      <div class="post">
+        <button class="sign" data-go="home">Volleyball<small>Alm-Tour oder Online-Duell, wie bisher</small></button>
+        <button class="sign l" data-go="kart">Alm-Kart<small>Ein Rennen, drei Runden, sechs Items</small></button>
+      </div>
+      <p class="tip">Im Kart lenkst du unten links, unten rechts wirfst du dein Item. Gas gibt das Kart von selbst.</p>
+    </div>
+  </div>
+</section>
+
+<section class="scr" id="s-kart">
+  <div class="board center">
+    <h2>Alm-Kart</h2>
+    <p class="lead">Ein Rennen über drei Runden auf dem Almring. Unten links lenkst du, unten rechts wirfst du dein Item, Gas gibt das Kart von selbst.</p>
+    <div class="post">
+      <button class="sign" id="b-kart">Allein fahren<small>Gegen drei Computer-Karts</small></button>
+      <button class="sign l" id="b-kon">Online-Rennen<small>Bis zu drei Spieler per WhatsApp-Link</small></button>
+    </div>
+    <p class="row"><button class="mini" data-go="mode">Zurück</button></p>
+  </div>
+</section>
+
+<section class="scr" id="s-klobby">
+  <div class="board">
+    <h2>Online-Rennen</h2>
+    <div id="kl-host">
+      <ol class="steps">
+        <li id="kst1" class="now"><b>Einladung schicken</b><span id="kl-status"></span>
+          <div id="kl-share" hidden>
+            <div class="solo"><a class="sign wa" id="b-kwa" target="_blank" rel="noopener" href="#">Per WhatsApp einladen<small>Bis zu zwei Mitspieler, derselbe Link für beide</small></a></div>
+            <p class="row"><button class="mini" id="b-kcopy">Link kopieren</button></p>
+            <p class="linkbox" id="kl-link"></p>
+            <p class="codeline">Code zum Ansagen: <b id="kl-code"></b></p>
+          </div>
+        </li>
+        <li id="kst2"><b>Hierher zurückkommen und warten</b><span>Lass diese Seite offen, bis deine Mitspieler da sind.</span></li>
+        <li id="kst3"><b>Rennen starten</b><span>Freie Plätze fahren Computer-Karts.</span>
+          <div class="solo"><button class="sign" id="b-kgo">Rennen starten<small>Startet bei allen gleichzeitig</small></button></div>
+        </li>
+      </ol>
+    </div>
+    <div id="kl-guest" hidden>
+      <ol class="steps">
+        <li class="done"><b>Einladung angenommen</b></li>
+        <li class="now"><b>Im Raum warten</b><span>Lass diese Seite offen. Du musst nichts mehr drücken.</span></li>
+        <li><b>Der Gastgeber startet das Rennen</b></li>
+      </ol>
+    </div>
+    <p class="live" id="kl-live"></p>
+    <p class="row"><button class="mini" data-go="kart">Zurück</button></p>
+  </div>
+</section>
+
 <section class="scr" id="s-home">
   <div class="cols">
     <div class="col">
       <h1 class="logo">Määhtchball</h1>
-      <p class="tag">Volleyball auf der Alm. Schaf gegen Esel.</p>
+      <p class="tag">Volleyball auf der Alm.</p>
       <div class="pick" role="group" aria-label="Deine Figur">
         <button class="chip" data-ch="0"><canvas data-ico="schaf"></canvas><b>Schaf</b><small>springt höher</small></button>
         <button class="chip" data-ch="1"><canvas data-ico="esel"></canvas><b>Esel</b><small>läuft schneller</small></button>
+        <button class="chip" data-ch="2"><canvas data-ico="pinguin"></canvas><b>Pinguin</b><small>kann beides</small></button>
       </div>
     </div>
     <div class="col">
@@ -140,7 +205,7 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
         <button class="sign l" data-go="online">Online-Duell<small>Lade jemanden per WhatsApp-Link ein</small></button>
         <button class="sign" data-go="help">So geht’s<small>Regeln, Schafe und Esel in einer Minute</small></button>
       </div>
-      <p class="row"><button class="mini" id="b-snd">Ton: an</button><button class="mini" id="b-mus">Techno: an</button><button class="mini" id="b-full" hidden>Vollbild</button></p>
+      <p class="row"><button class="mini" id="b-snd">Ton: an</button><button class="mini" id="b-mus">Techno: an</button><button class="mini" id="b-full" hidden>Vollbild</button><button class="mini" data-go="mode">Anderes Spiel</button></p>
       <p class="tip" id="ios-tip" hidden>Vollbild am iPhone: unten auf das Teilen-Symbol tippen, dann „Zum Home-Bildschirm“. Von dort startet das Spiel ohne Adresszeile.</p>
     </div>
   </div>
@@ -199,10 +264,11 @@ h2{margin:0 0 6px;font-size:26px;line-height:1.1}
 <section class="scr" id="s-invite">
   <div class="board center">
     <h2>Du bist eingeladen!</h2>
-    <p class="lead">Jemand wartet auf dich zum Määhtchball: Volleyball auf der Alm, Schaf gegen Esel. Such dir eine Figur aus und tipp auf Mitspielen.</p>
+    <p class="lead" id="inv-lead">Jemand wartet auf dich zum Määhtchball: Volleyball auf der Alm, Schaf gegen Esel. Such dir eine Figur aus und tipp auf Mitspielen.</p>
     <div class="pick" role="group" aria-label="Deine Figur">
       <button class="chip" data-ch="0"><canvas data-ico="schaf"></canvas><b>Schaf</b><small>springt höher</small></button>
       <button class="chip" data-ch="1"><canvas data-ico="esel"></canvas><b>Esel</b><small>läuft schneller</small></button>
+        <button class="chip" data-ch="2"><canvas data-ico="pinguin"></canvas><b>Pinguin</b><small>kann beides</small></button>
     </div>
     <div class="solo"><button class="sign" id="b-accept">Mitspielen<small>Verbindet dich direkt mit dem Spiel</small></button></div>
     <p class="row"><button class="mini" data-go="help">So geht’s</button><button class="mini" data-go="home">Erst allein üben</button></p>
@@ -273,7 +339,7 @@ var MB = (function () {
   /* comeback chaos (km bit 64): a giant figure is BIG times its size, measured from the FEET up */
   var BIG = 1.45, FEET = 46, IDLE = { l: false, r: false, j: false };
   /* 0 = Schaf (springt höher), 1 = Esel (läuft schneller) */
-  var CHARS = [{ run: 0.96, jump: 1.05 }, { run: 1.06, jump: 0.97 }];
+  var CHARS = [{ run: 0.96, jump: 1.05 }, { run: 1.06, jump: 0.97 }, { run: 1.01, jump: 1.01 }];   /* sheep, donkey, penguin */
   var rnd = Math.random;
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -285,7 +351,7 @@ var MB = (function () {
 
   /* ---------- blobs ---------- */
   function newBlob(side, ch) {
-    return { x: side ? 600 : 200, y: BLOB_GY, vx: 0, vy: 0, side: side ? 1 : 0, ch: ch ? 1 : 0, jmp: 0, land: 0 };
+    return { x: side ? 600 : 200, y: BLOB_GY, vx: 0, vy: 0, side: side ? 1 : 0, ch: ch === 2 ? 2 : ch ? 1 : 0, jmp: 0, land: 0 };
   }
   function homeBlob(b) { b.x = b.side ? 600 : 200; b.y = BLOB_GY; b.vx = 0; b.vy = 0; }
   function blobLo(side, g) { var r = LO_R * (g || 1); return side ? NETX + NETR + r : r + 1; }
@@ -734,7 +800,7 @@ var MB = (function () {
   /* ---------- online game: each player simulates their own figure, and the ball while it is on their side ---------- */
   function NetGame(side, ch, opts) {
     this.side = side ? 1 : 0;
-    this.me = newBlob(this.side, ch); this.op = newBlob(1 - this.side, ch ? 0 : 1);
+    this.me = newBlob(this.side, ch); this.op = newBlob(1 - this.side, ((ch | 0) + 1) % 3);
     this.opT = null; this.opAge = 0; this.rxAge = 0; this.gotRemote = false;
     this.owner = false; this.pend = false; this.seq = 0; this.rseq = -1;
     this.gAge = 0; this.off = [0, 0]; this.lastEv = 0; this.fx = []; this.rq = 0; this.stalled = false;
@@ -812,7 +878,7 @@ var MB = (function () {
     bl = msg.bl;
     if (bl && bl.length >= 4) {
       this.opT = [clamp(fin(bl[0], this.op.x), blobLo(s), blobHi(s)), clamp(fin(bl[1], BLOB_GY), -400, BLOB_GY), clamp(fin(bl[2], 0), -600, 600), clamp(fin(bl[3], 0), -2000, 2000)];
-      this.opAge = 0; this.op.ch = bl[4] ? 1 : 0;
+      this.opAge = 0; this.op.ch = bl[4] === 2 ? 2 : bl[4] ? 1 : 0;
       if (!this.gotRemote) { this.gotRemote = true; this.op.x = this.opT[0]; this.op.y = this.opT[1]; }
     }
     rm = msg.M;
@@ -1071,6 +1137,21 @@ function sheepBody(g, lx, ly, blink, team) {
   g.strokeStyle = '#F2B5A6'; g.lineWidth = 2; g.lineCap = 'round';
   g.beginPath(); g.moveTo(8, -11.5); g.lineTo(10.5, -9); g.lineTo(13, -11.5); g.moveTo(10.5, -9); g.lineTo(10.5, -6); g.stroke();
 }
+function pinguBody(g, lx, ly, blink, team) {
+  g.fillStyle = '#F5A623'; g.strokeStyle = INK; g.lineWidth = 2;
+  ell(g, -13, 45, 11, 5, 0); g.fill(); g.stroke(); ell(g, 13, 45, 11, 5, 0); g.fill(); g.stroke();
+  g.fillStyle = INK; ell(g, -33, 10, 7.5, 18, 0.35); g.fill(); ell(g, 33, 10, 7.5, 18, -0.35); g.fill();
+  g.beginPath(); g.arc(0, 13, 35.6, 0, TAU); g.arc(0, -19, 27.6, 0, TAU); g.fill();
+  g.fillStyle = '#2B3140'; g.beginPath(); g.arc(0, 13, 33, 0, TAU); g.arc(0, -19, 25, 0, TAU); g.fill();
+  g.fillStyle = '#FBFBF6'; ell(g, 4, 17, 22, 25, 0); g.fill(); ell(g, 6, -17, 17, 17, 0); g.fill();
+  if (team) bandana(g, team);
+  eyes(g, 0, -24, 13, -25, 5.4, lx, ly, blink);
+  g.fillStyle = '#F5A623'; g.strokeStyle = INK; g.lineWidth = 2; g.lineJoin = 'round';
+  g.beginPath(); g.moveTo(4, -17); g.lineTo(25, -12); g.lineTo(5, -8); g.closePath(); g.fill(); g.stroke();
+}
+function drawBody(g, ch, lx, ly, blink, team, wob) {
+  if (ch === 2) pinguBody(g, lx, ly, blink, team); else if (ch === 1) eselBody(g, lx, ly, blink, team, wob); else sheepBody(g, lx, ly, blink, team);
+}
 function ear(g, x, y, rot, col) {
   g.save(); g.translate(x, y); g.rotate(rot);
   g.fillStyle = INK; ell(g, 0, -15, 8.6, 19.5, 0); g.fill(); g.fillStyle = col; ell(g, 0, -15, 6.3, 17, 0); g.fill();
@@ -1109,8 +1190,7 @@ function drawBlob(g, b, side, sq, bxy, t, gs) {
   g.fillStyle = 'rgba(20,40,20,' + (0.26 - 0.14 * h).toFixed(2) + ')'; ell(g, b.x, GY + 3, (35 - 12 * h) * gs, 6 * gs, 0); g.fill();
   if (gs > 1.04) { g.fillStyle = 'rgba(255,212,71,' + (0.2 + 0.1 * Math.sin(t * 9)).toFixed(2) + ')'; ell(g, b.x, b.y + 46 - 40 * gs, 46 * gs, 52 * gs, 0); g.fill(); }
   g.save(); g.translate(b.x, b.y + 46); g.scale((flip ? -sx : sx) * gs, sy * gs); g.translate(0, -46);
-  if (b.ch === 0) sheepBody(g, lx, ly, blink, TEAM[side]);
-  else eselBody(g, lx, ly, blink, TEAM[side], clamp(b.vy / 1800, -0.6, 0.6) + Math.sin(t * 3 + side) * 0.05);
+  drawBody(g, b.ch, lx, ly, blink, TEAM[side], clamp(b.vy / 1800, -0.6, 0.6) + Math.sin(t * 3 + side) * 0.05);
   g.restore();
 }
 
@@ -1250,7 +1330,7 @@ function drawBell(g, a) {
 /* a ninja helper: a smaller copy of the player with a headband; rot spins it around its middle */
 function drawNinja(g, ch, x, y, rot, flip, alpha, team) {
   g.save(); g.globalAlpha = alpha; g.translate(x, y); g.rotate(rot); g.scale(flip ? -0.72 : 0.72, 0.72);
-  if (ch === 0) sheepBody(g, 0.8, -0.3, false, team); else eselBody(g, 0.8, -0.3, false, team, 0.3);
+  drawBody(g, ch, 0.8, -0.3, false, team, 0.3);
   g.lineCap = 'round'; g.strokeStyle = INK; g.lineWidth = 10; g.beginPath(); g.moveTo(-23, -31); g.lineTo(24, -33); g.moveTo(-23, -31); g.lineTo(-40, -24); g.moveTo(-23, -31); g.lineTo(-38, -38); g.stroke();
   g.strokeStyle = '#D7263D'; g.lineWidth = 5.5; g.stroke();
   g.restore();
@@ -1285,6 +1365,7 @@ function drawIcon(c, kind) {
   g.save();
   if (kind === 'schaf') { g.translate(27, 47); g.scale(0.52, 0.52); g.translate(0, -46); sheepBody(g, 0.7, -0.2, false, TEAM[0]); }
   else if (kind === 'esel') { g.translate(27, 50); g.scale(0.5, 0.5); g.translate(0, -46); eselBody(g, 0.7, -0.2, false, TEAM[1], 0); }
+  else if (kind === 'pinguin') { g.translate(27, 50); g.scale(0.5, 0.5); g.translate(0, -46); pinguBody(g, 0.7, -0.2, false, HAY); }
   else if (kind === 'kick') { g.translate(27, 50); g.scale(0.5, 0.5); g.translate(0, -46); eselBody(g, 0.7, -0.2, false, HAY, 0); }
   else if (kind === 'karotte') { g.translate(28, 34); g.scale(1.15, 1.15); drawCarrot(g, 0); }
   else if (kind === 'ball') { g.translate(28, 28); g.scale(0.78, 0.78); drawYarn(g, false); }
@@ -1303,7 +1384,7 @@ var store = {
   get: function (k, d) { try { var v = window.localStorage.getItem('maehtchball.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set: function (k, v) { try { window.localStorage.setItem('maehtchball.' + k, JSON.stringify(v)); } catch (e) {} }
 };
-var save = { ch: store.get('ch', 0) ? 1 : 0, stars: store.get('stars', []), snd: store.get('snd', 1) ? 1 : 0, mus: store.get('mus', 1) ? 1 : 0 };
+var save = { ch: clamp(store.get('ch', 0) | 0, 0, 2), stars: store.get('stars', []), snd: store.get('snd', 1) ? 1 : 0, mus: store.get('mus', 1) ? 1 : 0 };
 if (!save.stars || !save.stars.length) save.stars = [0, 0, 0, 0, 0, 0, 0, 0];
 
 /* the solo tour: eight stages uphill, each one faster, each unlocking the next */
@@ -1363,7 +1444,7 @@ function noiseBuf() {
   return nbuf;
 }
 /* ui = true: also audible in the menus (game effects stay quiet while the demo match runs behind them) */
-function quiet(ui) { return !ac || !save.snd || (!ui && (!S || S.mode === 'demo')); }
+function quiet(ui) { return !ac || !save.snd || (!ui && !KART && (!S || S.mode === 'demo')); }
 function tone(type, f0, f1, dur, vol, delay, vib, ui) {
   if (quiet(ui)) return;
   try {
@@ -1452,26 +1533,36 @@ function mBleat(t) {
   g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.2, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 0.36);
   o.connect(g); g.connect(MUS.bus); o.start(t); l.start(t); o.stop(t + 0.4); l.stop(t + 0.4);
 }
+function mDrone(t, root, len) {
+  var f = ac.createBiquadFilter(), g = ac.createGain(), fr = [root / 2, root / 2 * 1.007, root], i, o;
+  f.type = 'lowpass'; f.Q.value = 5; f.frequency.setValueAtTime(170, t); f.frequency.linearRampToValueAtTime(520, t + len * 0.5); f.frequency.linearRampToValueAtTime(170, t + len);
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.2, t + 0.4); g.gain.setValueAtTime(0.2, t + len - 0.3); g.gain.linearRampToValueAtTime(0.0001, t + len + 0.05);
+  for (i = 0; i < 3; i++) { o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = fr[i]; o.connect(f); o.start(t); o.stop(t + len + 0.1); }
+  f.connect(g); g.connect(MUS.bus);
+}
 function musicStep(n, t, lvl, dur) {
   var s = n % 16, bar = (n >> 4) % 8, root = M_ROOT[bar], b = s % 4;
+  if (s === 0) mDrone(t, root, dur * 16);          /* deep drone under every bar */
+  if (s & 1) t += dur * 0.16;                       /* swing: the off 16ths lag, that is the bounce */
   if (b === 0 && lvl > 0) mKick(t);
-  if (b !== 0) mVoice(t, 'sawtooth', [root * ((s === 6 || s === 14) ? 2 : 1)], dur * 0.92, 0.42, b === 2 ? 1500 : 750, 180, 6);
+  if (b !== 0) mVoice(t, 'sawtooth', [root * (b === 2 ? 2 : (b === 3 && (bar & 1)) ? 1.4983 : 1)], dur * (b === 2 ? 0.95 : 0.55), b === 2 ? 0.46 : 0.36, b === 2 ? 1700 : 700, 170, 7);
   if (b === 2) mNoise(t, 0.05, lvl > 0 ? 0.22 : 0.1, 'highpass', 7000); else if (s % 2 === 1 && lvl > 0) mNoise(t, 0.025, 0.07, 'highpass', 8000);
   if ((s === 4 || s === 12) && lvl > 0) mNoise(t, 0.13, 0.3, 'bandpass', 1700);
   if (lvl >= 2) {
     if (s === 3 || s === 6 || s === 11 || s === 14) mVoice(t, 'sawtooth', [root * 2, root * 2 * 1.1892, root * 2 * 1.4983], 0.2, 0.16, 2400, 600, 2);
     if (s === 10 && (bar & 1)) mNoise(t, 0.2, 0.13, 'highpass', 6000);
   }
-  if (lvl >= 3) mVoice(t, 'square', [root * 2 * Math.pow(2, M_ARP[s] / 12)], dur * 0.85, 0.15, b === 2 ? 3000 : 1500, 350, 11);
+  if (lvl >= 2) mVoice(t, 'sawtooth', [root * 2 * Math.pow(2, M_ARP[s] / 12)], dur * (b === 2 ? 1.3 : 0.8), lvl >= 3 ? 0.16 : 0.1, (b === 2 ? 3200 : 1400) * (lvl >= 3 ? 1.2 : 0.8), 300, 14);
   if (lvl === 0 && s >= 12) mNoise(t, 0.06, 0.1 + (s - 12) * 0.05, 'bandpass', 1900);
   if (bar === 7 && s === 12) mBleat(t);
 }
 function musicMood() {
-  var M, bpm = 124, lvl = 1;
-  if (S && S.mode !== 'demo') {
-    M = curM(); bpm = S.mode === 'solo' ? 126 + S.level * 2 : 132;
+  var M, bpm = 118, lvl = 1;
+  if (KART) lvl = KART.paused ? 1 : 3;
+  else if (S && S.mode !== 'demo') {
+    M = curM();
     if (S.paused || S.over) lvl = 1;
-    else if (M.ph === MB.PH_PLAY) { lvl = (M.cr >= 4 || M.fb >= 0) ? 3 : 2; bpm *= 1 + (MB.speedOf(M) / M.bs - 1) * 0.6; }
+    else if (M.ph === MB.PH_PLAY) { lvl = (M.cr >= 4 || M.fb >= 0) ? 3 : 2; bpm *= 1 + (MB.speedOf(M) / M.bs - 1) * 0.25; }
     else if (M.ph === MB.PH_POINT) lvl = 0;
   }
   MUS.lvl = lvl; MUS.bpm = bpm;
@@ -1634,7 +1725,7 @@ function startSolo(level) {
   var lv = MB.LEVELS[level], st = STAGES[level];
   S = baseSession('solo'); S.level = level;
   S.M = MB.newMatch({ bs: lv.bs, tg: lv.tg, km: st.km });
-  S.blobs = [MB.newBlob(0, save.ch), MB.newBlob(1, save.ch ? 0 : 1)];
+  S.blobs = [MB.newBlob(0, save.ch), MB.newBlob(1, (save.ch + 1) % 3)];
   S.ai = [null, MB.newAI(level)];
   setTheme(level);
   banner('Etappe ' + (level + 1) + ': ' + st.n, st.neu, 3.2);
@@ -1688,7 +1779,7 @@ function onEvent(e) {
     if (a === K.BELL && !demo) pop(NETX, 110, 'Die Blaue Glocke jagt den Führenden!', '#9FC2FF', 20);
   }
   else if (ty === EV.SHARK) { sfx('shark'); shake = 0.9; puff(x, GY - 4, 14, 'rgba(120,90,60,0.9)', 220, 8, 300); if (!demo) pop(x, GY - 190, 'HAPPS! Der Hai!', '#9FD0FF', 30); }
-  else if (ty === EV.GROW) { sfx('grow'); puff(x, y, 14, '#FFD447', 200, 6); if (!demo) pop(x, y - 60, curBlobs()[a].ch ? 'RIESEN-ESEL!' : 'RIESEN-SCHAF!', '#FFD447', 30); }
+  else if (ty === EV.GROW) { sfx('grow'); puff(x, y, 14, '#FFD447', 200, 6); if (!demo) pop(x, y - 60, ['RIESEN-SCHAF!', 'RIESEN-ESEL!', 'RIESEN-PINGUIN!'][curBlobs()[a].ch], '#FFD447', 30); }
   else if (ty === EV.BELL) { sfx('bell'); shake = 0.5; puff(x, y, 10, '#9FC2FF', 180, 5); if (!demo) pop(x, y - 34, 'DONG! Benommen', '#9FC2FF', 26); }
   else if (ty === EV.MIRACLE) { sfx('rewind'); shake = 0.7; puff(x, GY - 6, 14, '#FFD447', 220, 7); if (!demo) banner('MATCHBALL ABGEWEHRT!', 'Der Ball fliegt zurück', 2.2); }
   else if (ty === EV.CBP) { sfx('bonus'); S.bump[a] = 1; if (!demo) pop(x, y, '+1 Aufholjagd', HAY, 28); }
@@ -1913,12 +2004,407 @@ function frame(ts) {
   if (dt < 0.2) { frames++; if (dt > 0.03) slow++; if (frames >= 120) { if (slow > 60 && view.cap > 1) { view.cap = Math.max(1, view.cap - 0.5); sprites = {}; layout(); placePause(); } frames = 0; slow = 0; } }
   if (dt > 0.1) dt = 0.1;
   clock += dt; acc += dt;
+  if (KART) { acc = 0; kartStep(Math.min(dt, 0.05)); if (shake > 0) shake = Math.max(0, shake - dt * 2.4); uiTick(); kartRender(); return; }
   while (acc >= STEP && n < 14) { stepSession(STEP); acc -= STEP; n++; }
   if (acc > STEP * 2) acc = 0;
   netTick(dt);
   updateFx(dt);
   uiTick();
   render();
+}
+
+/* ===== kart.js: Alm-Kart, one circuit, three laps, flat track drawn in perspective (fragment) ===== */
+var KART = null, KM = null;
+var K_PTS = [[90, 256], [100, 120], [200, 70], [300, 110], [330, 200], [420, 170], [452, 280], [400, 400], [300, 432], [250, 340], [170, 402], [100, 380]];
+var K_N = 240, K_LAPS = 3, K_VMAX = 118, K_NAMES = ['Schaf', 'Esel', 'Pinguin'];
+var K_ITEM = { pilz: 'Steinpilz', stern: 'Edelweiß-Stern', ban: 'Banane', zap: 'Tannenzapfen', rot: 'Rote Glocke', blau: 'Blaue Glocke' };
+var K_COL = { pilz: '#B9783C', stern: '#FFD447', ban: '#FFE14D', zap: '#5E8F3A', rot: '#E5493D', blau: '#3D73DB' };
+
+function kartMap() {
+  var c = document.createElement('canvas'), g, i, j, p0, p1, p2, p3, t, wp = [], n = K_PTS.length, per = K_N / n, d, s, a, u8;
+  if (KM) return KM;
+  for (i = 0; i < n; i++) {
+    p0 = K_PTS[(i + n - 1) % n]; p1 = K_PTS[i]; p2 = K_PTS[(i + 1) % n]; p3 = K_PTS[(i + 2) % n];
+    for (j = 0; j < per; j++) {
+      t = j / per;
+      wp.push([0.5 * (2 * p1[0] + (p2[0] - p0[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t * t + (3 * p1[0] - p0[0] - 3 * p2[0] + p3[0]) * t * t * t),
+        0.5 * (2 * p1[1] + (p2[1] - p0[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t * t + (3 * p1[1] - p0[1] - 3 * p2[1] + p3[1]) * t * t * t)]);
+    }
+  }
+  function road(w, col, dash) {
+    g.strokeStyle = col; g.lineWidth = w; g.lineJoin = 'round'; g.lineCap = 'butt';
+    if (g.setLineDash) g.setLineDash(dash || []);
+    g.beginPath(); g.moveTo(wp[0][0], wp[0][1]); for (i = 1; i < wp.length; i++) g.lineTo(wp[i][0], wp[i][1]); g.closePath(); g.stroke();
+    if (g.setLineDash) g.setLineDash([]);
+  }
+  c.width = 512; c.height = 512; g = c.getContext('2d');
+  g.fillStyle = '#000'; g.fillRect(0, 0, 512, 512); road(46, '#fff');
+  d = g.getImageData(0, 0, 512, 512).data; s = new Uint8Array(512 * 512);
+  for (i = 0; i < s.length; i++) s[i] = d[i * 4] > 128 ? 1 : 0;
+  g.fillStyle = '#6DB548'; g.fillRect(0, 0, 512, 512);
+  g.fillStyle = '#62A83F'; for (i = 0; i < 16; i++) for (j = 0; j < 16; j++) if ((i + j) & 1) g.fillRect(i * 32, j * 32, 32, 32);
+  g.fillStyle = '#FFFFFF'; for (i = 0; i < 260; i++) g.fillRect(hsh(i, 61) * 512, hsh(i, 62) * 512, 2, 2);
+  road(56, '#E5493D'); road(56, '#FFF7E6', [9, 9]); road(46, '#6E6A72'); road(2, '#FFF7E6', [8, 10]);
+  a = Math.atan2(wp[1][1] - wp[0][1], wp[1][0] - wp[0][0]);
+  g.save(); g.translate(wp[0][0], wp[0][1]); g.rotate(a);
+  for (i = -4; i < 4; i++) for (j = 0; j < 2; j++) { g.fillStyle = ((i + j) & 1) ? '#FFF7E6' : '#33261F'; g.fillRect(j * 4 - 4, i * 5.75, 4, 5.75); }
+  g.restore();
+  u8 = g.getImageData(0, 0, 512, 512).data;
+  KM = { c: c, pix: new Uint32Array(u8.buffer), surf: s, wp: wp, fb: null };
+  return KM;
+}
+/* cfg (online only): { me: my seat 0..3, hum: which seats are people, chs: figure per seat, role: 'host' | 'guest' } */
+function kartStart(cfg) {
+  var m = kartMap(), i, r, a = Math.atan2(m.wp[1][1] - m.wp[0][1], m.wp[1][0] - m.wp[0][0]), w, lat, boxes = [], trees = [], b;
+  var me = cfg ? cfg.me : 0, hum = cfg ? cfg.hum : [true, false, false, false];
+  var chs = cfg ? cfg.chs : [save.ch, (save.ch + 1) % 3, (save.ch + 2) % 3, save.ch], tint = ['#E5493D', '#3D73DB', '#F7C948', '#8E5BD0'];
+  KART = { r: [], objs: [], boxes: boxes, trees: trees, t: -3.2, over: false, paused: false, shown: false, camA: a, lastJ: false, msg: '', msgT: 0, cd: 4, place: 0,
+    me: me, role: cfg ? cfg.role : '', auto: false, useN: 0, useT: 0, sendT: 0 };
+  for (i = 0; i < 4; i++) {
+    w = m.wp[(K_N - 3 - i * 4) % K_N]; lat = (i & 1) ? 9 : -9;
+    KART.r.push({ id: i, x: w[0] - Math.sin(a) * lat, y: w[1] + Math.cos(a) * lat, a: a, v: 0, ch: chs[i], tint: tint[i], ai: !hum[i], rem: hum[i] && i !== me, wp: K_N - 3 - i * 4, lap: -1, item: '', roll: 0, spin: 0, boost: 0, star: 0,
+      fin: 0, place: 0, rank: i + 1, use: 2 + i, useN: 0, off: (hsh(i, 71) - 0.5) * 16, pace: 0.9 + i * 0.025 });
+  }
+  for (i = 0; i < 4; i++) for (r = -1; r <= 1; r++) {
+    w = m.wp[25 + i * 60]; b = m.wp[26 + i * 60]; a = Math.atan2(b[1] - w[1], b[0] - w[0]);
+    boxes.push({ x: w[0] - Math.sin(a) * r * 13, y: w[1] + Math.cos(a) * r * 13, t: 0 });
+  }
+  for (i = 0; i < 46; i++) { w = [20 + hsh(i, 81) * 472, 20 + hsh(i, 82) * 472]; if (!m.surf[(w[1] | 0) * 512 + (w[0] | 0)] && kartNear(w[0], w[1]) > 40) trees.push(w); }
+  parts = []; pops = []; ban = null;
+}
+function kartNear(x, y) { var wp = KM.wp, i, d, best = 1e9; for (i = 0; i < K_N; i += 4) { d = Math.abs(wp[i][0] - x) + Math.abs(wp[i][1] - y); if (d < best) best = d; } return best; }
+function kartSay(s) { KART.msg = s; KART.msgT = 1.8; }
+function kartHit(r, long) { if (r.star > 0 || r.spin > 0.3) return; r.spin = long ? 1.8 : 1.1; r.v *= 0.3; if (r.id === KART.me) { sfx('squash'); shake = 0.6; } }
+function kartGive(r) {
+  var w = r.rank === 1 ? ['ban', 'ban', 'ban', 'zap', 'zap', 'pilz', 'rot'] : r.rank === 4 ? ['stern', 'stern', 'blau', 'blau', 'pilz', 'pilz', 'rot'] : ['pilz', 'pilz', 'rot', 'rot', 'zap', 'ban', 'stern', 'blau'];
+  r.item = w[Math.floor(Math.random() * w.length)];
+  if (r.id === KART.me) { sfx('bonus'); kartSay(K_ITEM[r.item] + '!'); }
+}
+function kartUse(r) {
+  var k = r.item, o = KART.objs, t = null, i, q;
+  if (!k) return; r.item = '';
+  if (k === 'pilz') { r.boost = 1.5; if (r.id === KART.me) sfx('whoosh'); }
+  else if (k === 'stern') { r.star = 6; if (r.id === KART.me) sfx('gold'); }
+  else if (k === 'ban') o.push({ k: k, x: r.x - Math.cos(r.a) * 9, y: r.y - Math.sin(r.a) * 9, own: r.id, life: 60, arm: 0.5 });
+  else if (k === 'zap') { o.push({ k: k, x: r.x + Math.cos(r.a) * 8, y: r.y + Math.sin(r.a) * 8, a: r.a, own: r.id, life: 4, arm: 0 }); if (r.id === KART.me) sfx('serve'); }
+  else {
+    for (i = 0; i < 4; i++) { q = KART.r[i]; if (q !== r && (k === 'blau' ? (q.rank === (r.rank === 1 ? 2 : 1)) : q.rank === r.rank - 1)) t = q; }
+    if (!t) { o.push({ k: 'zap', x: r.x + Math.cos(r.a) * 8, y: r.y + Math.sin(r.a) * 8, a: r.a, own: r.id, life: 4, arm: 0 }); return; }
+    o.push({ k: k, x: r.x, y: r.y, own: r.id, tgt: t.id, wp: r.wp, life: k === 'blau' ? 14 : 9, arm: 0 });
+    if (r.id === KART.me) sfx('bell'); else if (t.id === KART.me) kartSay(K_ITEM[k] + ' im Anflug!');
+  }
+}
+function kartStep(dt) {
+  var K = KART, m = KM, wp = m.wp, i, j, r, q, st, tgt, da, vm, d, nx, o, t, inp, rs, guest, mine, ref;
+  if (!K || K.paused) return;
+  guest = K.role === 'guest';
+  K.t += dt; if (K.msgT > 0) K.msgT -= dt;
+  if (K.role) kartNet(dt);
+  if (K.t < 0) { i = Math.ceil(-K.t); if (i !== K.cd && i <= 3) { K.cd = i; tone('square', 440, 440, 0.12, 0.2, 0, null, true); } return; }
+  if (K.cd !== 0) { K.cd = 0; tone('square', 880, 880, 0.3, 0.25, 0, null, true); }
+  inp = input(); ref = K.r[K.me];
+  for (i = 0; i < 4; i++) {
+    r = K.r[i]; st = 0; mine = i === K.me;
+    if (!guest) {   /* the host (or the solo game) hands out items and runs everyone's item timers */
+      if (r.roll > 0) { r.roll -= dt; if (r.roll <= 0) { r.roll = 0; kartGive(r); } }
+      for (j = 0; j < K.boxes.length; j++) { o = K.boxes[j]; if (o.t > 0) { if (i === 0) o.t -= dt; } else if (!r.item && !r.roll && Math.abs(o.x - r.x) < 9 && Math.abs(o.y - r.y) < 9) { o.t = 4; r.roll = 0.9; if (mine) sfx('carrot'); } }
+    }
+    if (guest ? !mine : r.rem) {   /* another player's kart: it drives on its own phone, here it only coasts between updates */
+      r.x += Math.cos(r.a) * r.v * dt; r.y += Math.sin(r.a) * r.v * dt;
+      if (r.boost > 0) r.boost -= dt; if (r.star > 0) r.star -= dt; if (r.spin > 0) r.spin -= dt;
+      continue;
+    }
+    if (r.ai || r.fin || (mine && K.auto)) {
+      tgt = wp[(r.wp + 8) % K_N]; j = wp[(r.wp + 9) % K_N]; da = Math.atan2(j[1] - tgt[1], j[0] - tgt[0]); d = r.ai ? r.off : 0;
+      da = Math.atan2(tgt[1] + Math.cos(da) * d - r.y, tgt[0] - Math.sin(da) * d - r.x) - r.a;
+      while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
+      st = clamp(da * 3, -1, 1);
+      if (r.ai && r.item && !r.roll) { r.use -= dt; if (r.use <= 0) { kartUse(r); r.use = 1.5 + Math.random() * 4; } }
+    } else st = (inp.r ? 1 : 0) - (inp.l ? 1 : 0);
+    if (mine && !r.ai) {
+      if (inp.j && !K.lastJ && r.item && !r.roll && !r.fin) { if (guest) { K.useN++; K.useT = clock + 0.7; r.item = ''; } else kartUse(r); }
+      K.lastJ = inp.j;
+    }
+    vm = K_VMAX * (r.ai ? r.pace * (ref.lap * K_N + ref.wp > r.lap * K_N + r.wp + 30 ? 1.1 : ref.lap * K_N + ref.wp < r.lap * K_N + r.wp - 40 ? 0.9 : 1) : 1);
+    if (!m.surf[(clamp(r.y, 0, 511) | 0) * 512 + (clamp(r.x, 0, 511) | 0)] && r.star <= 0) vm *= 0.45;
+    if (r.boost > 0) { r.boost -= dt; vm *= 1.55; } if (r.star > 0) { r.star -= dt; vm *= 1.25; }
+    if (r.spin > 0) { r.spin -= dt; vm = 0; st = 0; }
+    r.v += (vm - r.v) * Math.min(1, dt * (vm > r.v ? 1.5 : 2.6));
+    r.a += st * 2.3 * dt * clamp(r.v / K_VMAX, 0.35, 1);
+    r.x = clamp(r.x + Math.cos(r.a) * r.v * dt, 6, 506); r.y = clamp(r.y + Math.sin(r.a) * r.v * dt, 6, 506);
+    for (j = 0; j < 8; j++) {
+      nx = wp[(r.wp + 1) % K_N]; t = wp[r.wp % K_N];
+      if ((nx[0] - r.x) * (nx[0] - r.x) + (nx[1] - r.y) * (nx[1] - r.y) < (t[0] - r.x) * (t[0] - r.x) + (t[1] - r.y) * (t[1] - r.y) + 40) {
+        r.wp = (r.wp + 1) % K_N;
+        if (r.wp === 0) {
+          r.lap++;
+          if (mine && r.lap > 0 && r.lap < K_LAPS) { kartSay(r.lap === K_LAPS - 1 ? 'Letzte Runde!' : 'Runde ' + (r.lap + 1)); sfx('mine'); }
+          if (r.lap >= K_LAPS && !r.fin) { r.fin = K.t; if (!guest) r.place = ++K.place; }
+        }
+      } else break;
+    }
+  }
+  for (i = 0; i < 4; i++) for (j = i + 1; j < 4; j++) {
+    r = K.r[i]; q = K.r[j]; d = Math.sqrt((r.x - q.x) * (r.x - q.x) + (r.y - q.y) * (r.y - q.y)) || 1;
+    if (d < 9) {
+      nx = (9 - d) / 2; st = (r.x - q.x) / d * nx; t = (r.y - q.y) / d * nx;
+      if (guest ? i === K.me : !r.rem) { r.x += st; r.y += t; } if (guest ? j === K.me : !q.rem) { q.x -= st; q.y -= t; }
+      if (!guest) { if (r.star > 0) kartHit(q); if (q.star > 0) kartHit(r); }
+    }
+  }
+  for (i = K.objs.length - 1; i >= 0 && !guest; i--) {
+    o = K.objs[i]; o.life -= dt; o.arm -= dt;
+    if (o.k === 'zap') { o.x += Math.cos(o.a) * 235 * dt; o.y += Math.sin(o.a) * 235 * dt; if (o.x < 4 || o.x > 508) o.a = Math.PI - o.a; if (o.y < 4 || o.y > 508) o.a = -o.a; }
+    else if (o.k !== 'ban') {
+      q = K.r[o.tgt]; t = Math.sqrt((q.x - o.x) * (q.x - o.x) + (q.y - o.y) * (q.y - o.y));
+      if (t > 70) { nx = wp[(o.wp + 3) % K_N]; if (Math.abs(nx[0] - o.x) + Math.abs(nx[1] - o.y) < 14) o.wp = (o.wp + 3) % K_N; } else nx = [q.x, q.y];
+      d = Math.sqrt((nx[0] - o.x) * (nx[0] - o.x) + (nx[1] - o.y) * (nx[1] - o.y)) || 1; vm = o.k === 'blau' ? 270 : 215;
+      o.x += (nx[0] - o.x) / d * vm * dt; o.y += (nx[1] - o.y) / d * vm * dt;
+    }
+    for (j = 0; j < 4 && o.life > 0; j++) {
+      r = K.r[j];
+      if ((o.own === j && o.arm > -0.6 && o.k !== 'ban') || (o.own === j && o.arm > 0) || ((o.k === 'rot' || o.k === 'blau') && o.tgt !== j)) continue;
+      if (Math.abs(r.x - o.x) < 7 && Math.abs(r.y - o.y) < 7) { kartHit(r, o.k === 'blau'); o.life = 0; if (j === K.me && r.star <= 0) kartSay(K_ITEM[o.k] + ' erwischt dich!'); }
+    }
+    if (o.life <= 0) K.objs.splice(i, 1);
+  }
+  rs = K.r.slice(0).sort(function (a, b) { return (b.fin ? 1e6 - b.fin : b.lap * K_N + b.wp) - (a.fin ? 1e6 - a.fin : a.lap * K_N + a.wp); });
+  for (i = 0; i < 4; i++) rs[i].rank = i + 1;
+  ref = K.r[K.me];
+  if (ref.fin && ref.place && !K.over) { K.over = true; K.overT = 0; sfx(ref.place === 1 ? 'fan' : 'mine'); kartSay('Ziel! Platz ' + ref.place); }
+  if (K.over) K.overT += dt;
+}
+
+/* ---------- online race: up to three people, the remaining karts are driven by the computer ----------
+   Everyone steers their own kart on their own phone. The host's phone runs the computer karts, the items and the hits. */
+var KN = { peer: null, conns: [], host: null, role: '', code: '', tries: 0, timer: 0, open: false };
+function kSend(c, o) { try { if (c && c.open) c.send(JSON.stringify(o)); } catch (e) {} }
+function kartNetClose() {
+  var p = KN.peer; clearTimeout(KN.timer);
+  KN.peer = null; KN.conns = []; KN.host = null; KN.role = ''; KN.open = false;
+  if (p) setTimeout(function () { try { p.destroy(); } catch (e) {} }, 150);
+}
+function kartNet(dt) {
+  var K = KART, i, r, rs = [], os = [], bs = [], me = K.r[K.me];
+  K.sendT += dt; if (K.sendT < 1 / 15) return; K.sendT = 0;
+  if (K.role === 'guest') { kSend(KN.host, { kt: 1, s: [Math.round(me.x * 10) / 10, Math.round(me.y * 10) / 10, Math.round(me.a * 100) / 100, Math.round(me.v), me.wp, me.lap, me.fin], u: K.useN }); return; }
+  for (i = 0; i < 4; i++) { r = K.r[i]; rs.push([Math.round(r.x * 10) / 10, Math.round(r.y * 10) / 10, Math.round(r.a * 100) / 100, Math.round(r.v), r.wp, r.lap, r.fin, r.item, Math.round(r.roll * 10) / 10, Math.round(r.spin * 10) / 10, Math.round(r.boost * 10) / 10, Math.round(r.star * 10) / 10, r.place]); }
+  for (i = 0; i < K.objs.length; i++) os.push([K.objs[i].k, Math.round(K.objs[i].x), Math.round(K.objs[i].y)]);
+  for (i = 0; i < K.boxes.length; i++) bs.push(K.boxes[i].t > 0 ? 1 : 0);
+  for (i = KN.conns.length - 1; i >= 0; i--) {
+    if (KN.conns[i].last && clock - KN.conns[i].last > 5) { kDrop(KN.conns[i]); continue; }   /* silent for 5 s: that phone is gone */
+    kSend(KN.conns[i], { kt: 2, t: Math.round(K.t * 100) / 100, r: rs, o: os, b: bs });
+  }
+}
+function kartData(d, c) {
+  var K = KART, i, r, a, n;
+  if (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { return; } }
+  if (!d || typeof d !== 'object') return;
+  if (KN.role === 'host') {
+    c.last = clock;
+    if (d.kj) { c.kch = clamp(d.ch | 0, 0, 2); kLobby(); return; }
+    if (d.kt === 1 && K && K.role === 'host' && c.kid && d.s && d.s.length >= 7) {
+      r = K.r[c.kid]; a = d.s;
+      r.x = clamp(+a[0] || 0, 0, 512); r.y = clamp(+a[1] || 0, 0, 512); r.a = +a[2] || 0; r.v = clamp(+a[3] || 0, 0, 400); r.wp = clamp(a[4] | 0, 0, K_N - 1); r.lap = clamp(a[5] | 0, -1, K_LAPS);
+      if (a[6] && !r.fin) { r.fin = K.t; r.place = ++K.place; }
+      if ((d.u | 0) > r.useN) { r.useN = d.u | 0; if (r.item && !r.roll) kartUse(r); }
+    }
+    return;
+  }
+  if (d.kfull) { kartNetClose(); message('Kein Platz mehr', d.kfull === 2 ? 'Das Rennen läuft schon. Warte auf die nächste Einladung.' : 'In diesem Raum sind schon drei Spieler.'); return; }
+  if (d.kl) { setText('kl-live', 'Verbunden! ' + d.kl + ' von 3 Spielern im Raum. Du musst nichts drücken, der Gastgeber startet das Rennen.'); return; }
+  if (d.kgo && d.chs && d.hum) { kartStart({ me: clamp(d.kgo | 0, 1, 2), hum: d.hum, chs: d.chs, role: 'guest' }); show(''); return; }
+  if (d.kt === 2 && K && K.role === 'guest' && d.r && d.r.length === 4) {
+    if (Math.abs(K.t - d.t) > 0.25) K.t = d.t;
+    for (i = 0; i < 4; i++) {
+      r = K.r[i]; a = d.r[i];
+      if (i !== K.me) { r.x = a[0]; r.y = a[1]; r.a = a[2]; r.v = a[3]; r.wp = a[4]; r.lap = a[5]; r.fin = a[6]; r.spin = a[9]; r.boost = a[10]; r.star = a[11]; }
+      else {
+        if (a[7] && !r.item && !(K.useT > clock)) { sfx('bonus'); kartSay(K_ITEM[a[7]] + '!'); }
+        if (!(K.useT > clock)) r.item = a[7] || '';
+        r.roll = a[8];
+        if (a[9] > r.spin + 0.4) { r.spin = a[9]; r.v *= 0.3; sfx('squash'); shake = 0.6; }
+        if (Math.abs(a[10] - r.boost) > 0.4) { if (a[10] > r.boost) sfx('whoosh'); r.boost = a[10]; }
+        if (Math.abs(a[11] - r.star) > 0.4) { if (a[11] > r.star) sfx('gold'); r.star = a[11]; }
+      }
+      r.place = a[12];
+    }
+    K.objs = []; n = d.o || [];
+    for (i = 0; i < n.length && i < 40; i++) K.objs.push({ k: n[i][0], x: n[i][1], y: n[i][2] });
+    n = d.b || []; for (i = 0; i < K.boxes.length; i++) K.boxes[i].t = n[i] ? 1 : 0;
+  }
+}
+function kLobby() {
+  var n = 1 + KN.conns.length, i;
+  if (KN.role !== 'host') return;
+  setText('kl-live', n === 1 ? 'Noch niemand da. Warte, oder starte allein gegen drei Computer-Karts.' : (n - 1) + (n === 2 ? ' Mitspieler ist da.' : ' Mitspieler sind da.') + ' Tipp auf „Rennen starten“, sobald alle da sind.');
+  $('kst2').className = n > 1 ? 'done' : (KN.sent ? 'now' : ''); $('kst1').className = KN.sent || n > 1 ? 'done' : 'now'; $('kst3').className = n > 1 ? 'now' : '';
+  for (i = 0; i < KN.conns.length; i++) kSend(KN.conns[i], { kl: n });
+}
+function kDrop(c) {
+  var i = KN.conns.indexOf(c);
+  if (i < 0) return;
+  KN.conns.splice(i, 1);
+  if (KART && KART.role === 'host' && c.kid) { KART.r[c.kid].rem = false; KART.r[c.kid].ai = true; }   /* the computer takes over that kart */
+  if (cur === 'klobby') kLobby();
+}
+function kFail(msg) { kartNetClose(); message('Online-Rennen', msg); }
+function kPeer(p) {
+  p.on('disconnected', function () { setTimeout(function () { if (KN.peer === p && !p.destroyed && p.disconnected) { try { p.reconnect(); } catch (e) {} } }, 1200); });
+  p.on('error', function (err) {
+    var t = (err && err.type) || '';
+    if (KN.peer !== p) return;
+    if (t === 'peer-unavailable') { if (KN.role === 'guest' && !KN.host) kRetry(); return; }
+    if (t === 'unavailable-id') { if (KN.role === 'host' && !KN.open) kartHost(); return; }
+    if (t === 'browser-incompatible') { kFail('Dieser Browser erlaubt hier keine Direktverbindung. Öffne den Link in Safari oder Chrome.'); return; }
+    if (!KN.open) kFail('Der Vermittlungsdienst ist gerade nicht erreichbar. Versuch es in einer Minute nochmal.');
+  });
+}
+function kartHost() {
+  kartNetClose(); KN.role = 'host'; KN.code = mkCode(); KN.sent = false; awake();
+  hide($('kl-host'), false); hide($('kl-guest'), true); hide($('kl-share'), true); setText('kl-status', 'Dein Raum wird eröffnet …'); setText('kl-live', 'Einen Moment …'); show('klobby');
+  loadPeer(function (ok) {
+    var p, l;
+    if (KN.role !== 'host' || KN.peer) return;
+    if (!ok) return kFail('Die Online-Technik konnte nicht geladen werden. Prüf deine Internetverbindung.');
+    try { p = KN.peer = new window.Peer('maehtchball-kart-' + KN.code, PEER_OPT); } catch (e) { return kFail('Dieser Browser erlaubt hier keine Direktverbindung.'); }
+    p.on('open', function () {
+      if (KN.peer !== p) return;
+      KN.open = true; l = location.href.split('#')[0] + '#kart-' + KN.code;
+      setText('kl-status', 'Dein Raum ist offen. Tipp auf den grünen Knopf:'); setText('kl-link', l); setText('kl-code', KN.code);
+      $('b-kwa').href = 'https://wa.me/?text=' + encodeURIComponent('Alm-Kart 🐧🏁 Fahr gegen mich! Tipp auf den Link und dann auf „Mitspielen“: ' + l + '  (Falls ein Code gefragt wird: ' + KN.code + ')');
+      hide($('kl-share'), false); kLobby();
+    });
+    p.on('connection', function (c) {
+      c.on('open', function () {
+        if (KN.peer !== p) return;
+        if (KN.conns.length >= 2 || (KART && KART.role === 'host' && !KART.over)) { kSend(c, { kfull: KN.conns.length >= 2 ? 1 : 2 }); return; }
+        KN.conns.push(c); c.kid = 0; if (c.kch === undefined) c.kch = (KN.conns.length + save.ch) % 3; kLobby();
+      });
+      c.on('data', function (d) { kartData(d, c); });
+      c.on('close', function () { kDrop(c); }); c.on('error', function () { kDrop(c); });
+    });
+    kPeer(p);
+  });
+}
+function kartGo() {
+  var hum = [true, false, false, false], chs = [save.ch, (save.ch + 1) % 3, (save.ch + 2) % 3, save.ch], i;
+  if (KN.role !== 'host') return;
+  for (i = 0; i < KN.conns.length && i < 2; i++) { KN.conns[i].kid = i + 1; hum[i + 1] = true; chs[i + 1] = KN.conns[i].kch | 0; }
+  for (i = 0; i < KN.conns.length && i < 2; i++) kSend(KN.conns[i], { kgo: i + 1, chs: chs, hum: hum });
+  kartStart({ me: 0, hum: hum, chs: chs, role: 'host' }); show('');
+}
+function kRetry() {
+  if (KN.role !== 'guest' || KN.host) return;
+  clearTimeout(KN.timer);
+  if (++KN.tries > 45) return kFail('Unter diesem Link wartet gerade niemand. Bitte um einen neuen Link.');
+  if (KN.tries >= 2) setText('kl-live', 'Der Gastgeber hat die Spielseite gerade nicht offen. Ich versuche es weiter …');
+  KN.timer = setTimeout(kDial, 2200);
+}
+function kDial() {
+  var p = KN.peer, c;
+  if (!p || KN.role !== 'guest' || KN.host) return;
+  clearTimeout(KN.timer);
+  if (p.disconnected) { try { p.reconnect(); } catch (e) {} KN.timer = setTimeout(kDial, 2500); return; }
+  try { c = p.connect('maehtchball-kart-' + KN.code, { reliable: false, serialization: 'raw' }); } catch (e) { KN.timer = setTimeout(kDial, 2500); return; }
+  c.on('open', function () { if (KN.peer !== p) return; clearTimeout(KN.timer); KN.host = c; KN.open = true; kSend(c, { kj: 1, ch: save.ch }); setText('kl-live', 'Verbunden! Du musst nichts drücken, der Gastgeber startet das Rennen.'); });
+  c.on('data', function (d) { if (KN.host === c) kartData(d, c); });
+  c.on('close', function () { if (KN.host === c) { kartNetClose(); KART = null; if (!S || S.mode !== 'demo') startDemo(); message('Verbindung verloren', 'Die Verbindung zum Gastgeber ist weg. Lass dir einen neuen Link schicken.'); } });
+  KN.timer = setTimeout(function () { if (!KN.host) { try { c.close(); } catch (e) {} kRetry(); } }, 14000);
+}
+function kartJoin(code) {
+  kartNetClose(); KN.role = 'guest'; KN.code = code; KN.tries = 0; awake();
+  hide($('kl-host'), true); hide($('kl-guest'), false); setText('kl-live', 'Verbinde mit dem Raum ' + code + ' …'); show('klobby');
+  loadPeer(function (ok) {
+    var p;
+    if (KN.role !== 'guest' || KN.peer) return;
+    if (!ok) return kFail('Die Online-Technik konnte nicht geladen werden. Prüf deine Internetverbindung.');
+    try { p = KN.peer = new window.Peer(PEER_OPT); } catch (e) { return kFail('Dieser Browser erlaubt hier keine Direktverbindung.'); }
+    p.on('open', function () { if (KN.peer === p) kDial(); });
+    kPeer(p);
+  });
+}
+function kartAgain() {
+  if (KN.role === 'host') kartGo(); else if (KN.role === 'guest') toast('Der Gastgeber startet das nächste Rennen'); else { kartStart(); show(''); }
+}
+function kartSprite(g, kind, o, sx, sy, k, t) {
+  g.save(); g.translate(sx, sy); g.scale(k, k);
+  if (kind === 'r') {
+    if (o.spin > 0) g.rotate(Math.sin(o.spin * 14) * 0.5);
+    if (o.star > 0) { g.fillStyle = 'rgba(255,212,71,' + (0.4 + 0.3 * Math.sin(t * 20)).toFixed(2) + ')'; ell(g, 0, -40, 62, 62, 0); g.fill(); }
+    g.fillStyle = INK; ell(g, -40, -6, 13, 13, 0); g.fill(); ell(g, 40, -6, 13, 13, 0); g.fill();
+    g.fillStyle = o.tint; g.strokeStyle = INK; g.lineWidth = 4; rrect(g, -46, -34, 92, 30, 12); g.fill(); g.stroke();
+    g.translate(0, -62); g.scale(0.8, 0.8);
+    drawBody(g, o.ch, 0, 0.3, false, null, 0.2);
+    if (o.boost > 0) { g.fillStyle = '#FF9A3D'; ell(g, 0, 80, 14, 24 + Math.sin(t * 40) * 6, 0); g.fill(); }
+  } else if (kind === 'box') {
+    g.rotate(Math.sin(t * 3) * 0.2); g.fillStyle = HAY; g.strokeStyle = INK; g.lineWidth = 4; rrect(g, -22, -52, 44, 44, 9); g.fill(); g.stroke();
+    text(g, '?', 0, -29, 30, INK);
+  } else if (kind === 'tree') {
+    g.fillStyle = '#7A4E2C'; g.fillRect(-7, -30, 14, 30);
+    g.fillStyle = '#2E6A3B'; g.strokeStyle = INK; g.lineWidth = 3; g.beginPath(); g.moveTo(0, -150); g.lineTo(46, -24); g.lineTo(-46, -24); g.closePath(); g.fill(); g.stroke();
+  } else {
+    g.fillStyle = K_COL[kind]; g.strokeStyle = INK; g.lineWidth = 3;
+    if (kind === 'ban') { g.beginPath(); g.arc(0, -22, 20, 0.2, Math.PI - 0.2); g.arc(0, -34, 20, Math.PI - 0.5, 0.5, true); g.closePath(); g.fill(); g.stroke(); }
+    else if (kind === 'zap') { ell(g, 0, -18, 13, 18, t * 9); g.fill(); g.stroke(); }
+    else { g.translate(0, -30); g.scale(1.5, 1.5); g.beginPath(); g.moveTo(-18, 12); g.quadraticCurveTo(-14, -4, -9, -13); g.quadraticCurveTo(0, -23, 9, -13); g.quadraticCurveTo(14, -4, 18, 12); g.closePath(); g.fill(); g.stroke(); g.fillStyle = HAY; circ(g, 0, 15, 4.6); g.fill(); g.stroke(); }
+  }
+  g.restore();
+}
+function kartRender() {
+  var K = KART, m = KM, g = cx, cw = view.cw, ch = view.ch, FW = 200, FH = 96, me = K.r[K.me], hor = Math.round(ch * 0.36), i, x, y, z, f = FW * 0.8, H = 15, a, ca, sa, px, py, sxp, syp, wx, wy, buf, row, list = [], o, S2, d, t = clock;
+  var camx, camy, pix = m.pix;
+  a = K.camA += (function (d) { while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU; return d; })(me.a - K.camA) * 0.2;
+  ca = Math.cos(a); sa = Math.sin(a); camx = me.x - ca * 30; camy = me.y - sa * 30;
+  if (!m.fb) { m.fb = document.createElement('canvas'); m.fb.width = FW; m.fb.height = FH; m.fg = m.fb.getContext('2d'); m.img = m.fg.createImageData(FW, FH); m.b32 = new Uint32Array(m.img.data.buffer); }
+  buf = m.b32;
+  for (y = 0; y < FH; y++) {
+    z = H * f / (y + 0.7); px = camx + ca * z + sa * (FW / 2) * z / f; py = camy + sa * z - ca * (FW / 2) * z / f; sxp = -sa * z / f; syp = ca * z / f; row = y * FW;
+    for (x = 0; x < FW; x++) { wx = px | 0; wy = py | 0; buf[row + x] = (wx >= 0 && wx < 512 && wy >= 0 && wy < 512) ? pix[wy * 512 + wx] : 0xFF3F8F4F; px += sxp; py += syp; }
+  }
+  m.fg.putImageData(m.img, 0, 0);
+  screen(g); g.globalAlpha = 1;
+  d = g.createLinearGradient(0, 0, 0, hor); d.addColorStop(0, '#3A86D8'); d.addColorStop(1, '#D6F0FC'); g.fillStyle = d; g.fillRect(0, 0, cw, hor + 1);
+  for (i = 0; i < 2; i++) {
+    g.fillStyle = i ? '#5F8F6A' : '#8FA9D2'; g.beginPath(); g.moveTo(0, hor + 1);
+    for (x = 0; x <= cw + 8; x += 8) { z = a * (i ? 1.6 : 1) + (x - cw / 2) / cw * 1.2; g.lineTo(x, hor - (i ? 8 : 26) - (i ? 9 : 24) * (Math.sin(z * 3 + i) * 0.5 + 0.5) - (i ? 5 : 16) * (Math.sin(z * 7.3 + 2) * 0.5 + 0.5)); }
+    g.lineTo(cw + 8, hor + 1); g.closePath(); g.fill();
+  }
+  g.imageSmoothingEnabled = false; g.webkitImageSmoothingEnabled = false; g.drawImage(m.fb, 0, hor, cw, ch - hor); g.imageSmoothingEnabled = true; g.webkitImageSmoothingEnabled = true;
+  S2 = (ch - hor) / FH;
+  function add(kind, ob, wx, wy) {
+    var rx = wx - camx, ry = wy - camy, zc = rx * ca + ry * sa, xc = -rx * sa + ry * ca, sc;
+    if (zc < 3 || zc > 420) return;
+    sc = f / zc; list.push([zc, kind, ob, cw / 2 + xc * sc * (cw / FW), hor + H * sc * S2, sc * S2 * 0.105]);
+  }
+  for (i = 0; i < K.trees.length; i++) add('tree', null, K.trees[i][0], K.trees[i][1]);
+  for (i = 0; i < K.boxes.length; i++) if (K.boxes[i].t <= 0) add('box', null, K.boxes[i].x, K.boxes[i].y);
+  for (i = 0; i < K.objs.length; i++) add(K.objs[i].k, null, K.objs[i].x, K.objs[i].y);
+  for (i = 0; i < 4; i++) add('r', K.r[i], K.r[i].x, K.r[i].y);
+  list.sort(function (p, q) { return q[0] - p[0]; });
+  for (i = 0; i < list.length; i++) { o = list[i]; kartSprite(g, o[1], o[2], o[3], o[4], o[5], t); }
+  /* HUD */
+  d = Math.min(1, cw / 700);
+  text(g, 'Runde ' + clamp(me.lap + 1, 1, K_LAPS) + '/' + K_LAPS, 14, 22, 20 * d + 4, WOOL, INK, 5, 'left');
+  text(g, 'Platz ' + (me.fin ? me.place : me.rank) + '/4', 14, 50 * d + 12, 26 * d + 6, HAY, INK, 6, 'left');
+  x = cw / 2; g.fillStyle = 'rgba(255,247,230,0.85)'; g.strokeStyle = INK; g.lineWidth = 3; circ(g, x, 34, 26); g.fill(); g.stroke();
+  if (me.roll > 0) text(g, '?', x, 35, 30, INK); else if (me.item) { g.fillStyle = K_COL[me.item]; circ(g, x, 34, 16); g.fill(); g.stroke(); text(g, K_ITEM[me.item], x, 74, 14, WOOL, INK, 4); }
+  g.save(); g.translate(cw - 150, 8); g.scale(0.16, 0.16); g.globalAlpha = 0.85; g.strokeStyle = WOOL; g.lineWidth = 40; g.beginPath(); for (i = 0; i < K_N; i += 4) g.lineTo(m.wp[i][0], m.wp[i][1]); g.closePath(); g.stroke();
+  for (i = 3; i >= 0; i--) { g.fillStyle = K.r[i].tint; g.strokeStyle = INK; g.lineWidth = 10; circ(g, K.r[i].x, K.r[i].y, i === K.me ? 30 : 22); g.fill(); g.stroke(); }
+  g.restore(); g.globalAlpha = 1;
+  if (K.t < 0) text(g, '' + Math.ceil(-K.t > 3 ? 3 : -K.t), cw / 2, ch * 0.3, 90, WOOL, INK, 14);
+  else if (K.t < 1) text(g, 'Los!', cw / 2, ch * 0.3, 80, HAY, INK, 14);
+  else if (K.msgT > 0) text(g, K.msg, cw / 2, ch * 0.28, Math.min(40, cw / K.msg.length * 1.5), WOOL, INK, 8);
+  if (view.touch) { padBtn(g, view.bl, view.R, 0, tin.l); padBtn(g, view.br, view.R, 1, tin.r); padBtn(g, view.bj, view.R * 1.15, 2, tin.j); text(g, 'Item', view.bj[0], view.bj[1] + view.R * 0.72, 12, INK); }
+}
+function kartResult() {
+  var me = KART.r[KART.me], s = me.fin, nx = $('b-next');
+  KART.shown = true;
+  setText('r-title', me.place === 1 ? 'Sieg!' : 'Platz ' + me.place + ' von 4');
+  setText('r-score', Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60).toFixed(1));
+  hide($('r-stars'), true); setText('r-text', me.place === 1 ? 'Drei Runden, niemand vor dir. Stark gefahren!' : 'Drei Runden geschafft. Beim nächsten Mal holst du sie dir.');
+  hide(nx, false); nx.innerHTML = KN.role === 'guest' ? 'Warte auf den Gastgeber<small>Er startet das nächste Rennen</small>' : 'Nochmal fahren<small>Drei Runden auf dem Almring</small>'; hide($('b-again'), true);
+  show('result');
 }
 
 /* ===== ui.js: menus, online link (PeerJS / WebRTC), start-up (fragment) ===== */
@@ -1945,7 +2431,7 @@ function show(id) {
   var s = document.querySelectorAll('.scr'), i;
   for (i = 0; i < s.length; i++) s[i].className = 'scr' + (s[i].id === 's-' + id ? ' on' : '');
   cur = id || '';
-  hide($('b-pause'), !!id || !S || S.mode === 'demo');
+  hide($('b-pause'), !!id || (!KART && (!S || S.mode === 'demo')));
 }
 function toast(msg) { var t = $('toast'); t.textContent = msg; hide(t, false); clearTimeout(toastT); toastT = setTimeout(function () { hide(t, true); }, 2200); }
 function placePause() { $('b-pause').style.top = ((view.portrait && view.touch) ? view.fb + 8 : 8) + 'px'; }
@@ -1971,18 +2457,25 @@ function buildStages() {
   $('stages').innerHTML = h;
 }
 function leaveGame() {
-  netClose(false);
+  netClose(false); kartNetClose(); KART = null;
   try { if (location.hash && window.history && history.replaceState) history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   if (!S || S.mode !== 'demo') startDemo();
 }
 function go(name) {
   audioOn();
   if (name === 'home') { leaveGame(); show('home'); }
+  else if (name === 'mode') { leaveGame(); show('mode'); }
+  else if (name === 'kart') { leaveGame(); show('kart'); }
   else if (name === 'tour') { buildStages(); show('tour'); }
   else if (name === 'online') { onlineStart(); show('online'); }
   else if (name === 'help') show('help');
 }
 function togglePause() {
+  if (KART) {
+    if (KART.over) return;
+    if (KART.role) { setText('p-title', 'Das Rennen läuft weiter'); hide($('b-restart'), true); setText('b-quit', 'Rennen verlassen'); show(cur === 'pause' ? '' : 'pause'); return; }
+    KART.paused = !KART.paused; setText('p-title', 'Pause'); hide($('b-restart'), false); setText('b-quit', 'Zum Start'); show(KART.paused ? 'pause' : ''); return;
+  }
   if (!S || S.mode === 'demo' || S.over) return;
   if (cur === 'pause') { S.paused = false; show(''); return; }
   if (cur !== '') return;
@@ -2020,7 +2513,9 @@ function showResult() {
 function hideResult() { if (cur === 'result') show(''); }
 function message(title, body) { setText('m-title', title); setText('m-text', body); show('msg'); }
 function uiTick() {
-  if (S && S.mode !== 'demo' && S.over && !S.shown && S.overT > 1.7 && ((!S.bubble && !S.queue.length) || S.overT > 12) && cur === '') showResult();
+  if (KART && KART.over && !KART.shown && KART.overT > 2.2 && cur === '') kartResult();
+  if (KART && KART.role === 'guest' && !KN.host && !KART.over) { KART = null; kartNetClose(); startDemo(); message('Verbindung verloren', 'Die Verbindung zum Gastgeber ist weg.'); }
+  if (!KART && S && S.mode !== 'demo' && S.over && !S.shown && S.overT > 1.7 && ((!S.bubble && !S.queue.length) || S.overT > 12) && cur === '') showResult();
   if (S && S.net && NET.up && NET.downT > 75) lost();
   lobbyTick();
 }
@@ -2217,7 +2712,7 @@ function onClick(e) {
   var t = e.target, v;
   while (t && t !== document && t.getAttribute) {
     if ((v = t.getAttribute('data-go'))) { go(v); sfx('tap'); return; }
-    if ((v = t.getAttribute('data-ch')) !== null) { save.ch = +v ? 1 : 0; store.set('ch', save.ch); refreshChips(); audioOn(); sfx('tap'); return; }
+    if ((v = t.getAttribute('data-ch')) !== null) { save.ch = clamp(+v | 0, 0, 2); store.set('ch', save.ch); refreshChips(); audioOn(); sfx('tap'); return; }
     if ((v = t.getAttribute('data-lv')) !== null) { if (t.className.indexOf('lock') < 0) { audioOn(); landFull(); startSolo(+v); show(''); } else toast('Erst die Etappe davor gewinnen'); return; }
     t = t.parentNode;
   }
@@ -2261,19 +2756,25 @@ function init() {
   window.addEventListener('resize', relayout); window.addEventListener('orientationchange', function () { setTimeout(relayout, 300); });
   document.addEventListener('click', onClick);
   $('b-pause').onclick = togglePause; $('b-resume').onclick = togglePause;
-  $('b-restart').onclick = function () { startSolo(S.level); show(''); };
+  $('b-restart').onclick = function () { if (KART) kartStart(); else startSolo(S.level); show(''); };
+  $('b-kon').onclick = function () { audioOn(); landFull(); kartHost(); sfx('tap'); };
+  $('b-kgo').onclick = function () { audioOn(); landFull(); kartGo(); };
+  $('b-kwa').onclick = function () { setTimeout(function () { KN.sent = true; kLobby(); }, 400); };
+  $('b-kcopy').onclick = function () { copyText($('kl-link').textContent); KN.sent = true; kLobby(); };
+  $('b-kart').onclick = function () { audioOn(); landFull(); awake(); kartStart(); show(''); sfx('tap'); };
   $('b-quit').onclick = function () { go('home'); };
   $('b-snd').onclick = toggleSound; $('b-snd2').onclick = toggleSound; $('b-mus').onclick = toggleMusic; $('b-mus2').onclick = toggleMusic; $('b-full').onclick = fullscreen;
   setInterval(musicTick, 50);
   $('b-again').onclick = function () { startSolo(S.level); show(''); };
   $('b-next').onclick = function () {
+    if (KART) { kartAgain(); return; }
     if (!S) return;
     if (S.mode === 'solo') { startSolo(Math.min(7, S.level + 1)); show(''); }
     else if (S.net) { S.net.askRematch(); if (S.net.M.ph === MB.PH_OVER) $('b-next').innerHTML = 'Revanche angefragt …<small>Geht los, sobald die Verbindung antwortet</small>'; }
   };
   $('b-host').onclick = function () { audioOn(); landFull(); hostStart(); };
   $('b-join').onclick = function () { var c = ($('i-code').value || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); audioOn(); if (c.length !== 5) { toast('Der Code hat 5 Zeichen'); return; } landFull(); guestStart(c); };
-  $('b-accept').onclick = function () { var c = hashCode(); audioOn(); landFull(); if (c) { show('online'); guestStart(c); } else go('online'); };
+  $('b-accept').onclick = function () { var c = hashCode(); audioOn(); landFull(); if (c && /kart/i.test(location.hash)) kartJoin(c); else if (c) { show('online'); guestStart(c); } else go('online'); };
   $('b-copy').onclick = function () { copyText(gameLink()); sentInvite(); };
   $('b-wa').onclick = function () { setTimeout(sentInvite, 400); };
   $('b-share').onclick = function () { sentInvite(); try { navigator.share({ title: 'Määhtchball', text: 'Volleyball auf der Alm, Schaf gegen Esel. Spiel gegen mich!', url: gameLink() })['catch'](function () {}); } catch (e) {} };
@@ -2281,7 +2782,7 @@ function init() {
   window.addEventListener('hashchange', function () { if (!IN_PREVIEW && hashCode() && (cur === 'home' || cur === 'help' || cur === 'tour')) show('invite'); });
   document.addEventListener('visibilitychange', function () {
     tin.l = tin.r = tin.j = false; keys.l = keys.r = keys.j = false;
-    if (document.hidden) { hiddenAt = now(); audioSleep(true); try { if (SP) SP.cancel(); } catch (e) {} if (S && S.mode === 'solo' && cur === '') togglePause(); return; }
+    if (document.hidden) { hiddenAt = now(); audioSleep(true); try { if (SP) SP.cancel(); } catch (e) {} if ((KART || (S && S.mode === 'solo')) && cur === '') togglePause(); return; }
     lastTs = now(); audioSleep(false); if (NET.role || (S && S.mode !== 'demo')) awake();
     if (NET.peer && !NET.peer.destroyed) {
       /* back from WhatsApp: phones often cut the line to the matchmaking server while the page sleeps, so open a fresh one */
@@ -2292,11 +2793,13 @@ function init() {
   });
 
   startDemo();
-  show(inv ? 'invite' : 'home');
+  if (inv && /kart/i.test(location.hash)) setText('inv-lead', 'Jemand wartet auf dich zum Alm-Kart: ein Rennen, drei Runden, bis zu drei Spieler. Such dir eine Figur aus und tipp auf Mitspielen.');
+  show(inv ? 'invite' : 'mode');
   raf(frame);
 }
 window.__mb = { state: function () { return S; }, net: NET, view: view, solo: function (l) { startSolo(l); show(''); }, show: show,
   auto: function (l) { if (S) S.ai[S.side] = MB.newAI(l); }, match: function () { return curM(); },
+  kart: function () { kartStart(); show(''); return KART; }, kn: KN, kart0: function () { return KART; }, kstep: function (n, auto) { var i; if (auto) KART.auto = true; for (i = 0; i < n && !KART.over; i++) kartStep(1 / 60); return { t: KART.t, over: KART.over, place: KART.r[0].place, laps: KART.r.map(function (r) { return r.lap; }) }; },
   fast: function (n) { var i; for (i = 0; i < n && S && !S.over; i++) stepSession(STEP); return S ? { taunts: S.taunts + S.queue.length, over: S.over, s: curM().s.slice(0), bubble: S.bubble ? S.bubble.s : '' } : null; },
   music: function () { return { step: MUS.step, lvl: MUS.lvl, bpm: Math.round(MUS.bpm), state: ac ? ac.state : 'none' }; }, probe: audioProbe };
 init();
